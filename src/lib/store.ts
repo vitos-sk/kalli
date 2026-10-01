@@ -80,3 +80,4 @@ export function createMapStore(key: string) {
 
 export const notes = createMapStore('pentest-cheats:notes')
 export const playbookDone = createSetStore('pentest-cheats:playbooks')
+export const understood = createSetStore('pentest-cheats:understood')

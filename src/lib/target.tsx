@@ -4,7 +4,15 @@ const KEY = 'pentest-cheats:target'
 // Только символы, возможные в домене / IP / CIDR. Всё остальное отбрасываем,
 // чтобы в скопированную команду не попали пробелы, `;`, `|` и прочие шелл-символы.
 const ALLOWED = /[^A-Za-z0-9._:/-]/g
-const PLACEHOLDER = /<(?:ip|target)>/g
+const PLACEHOLDER = /<(?:ip|target|domain)>/g
+const NET = /<net>/g
+
+// Сеть из цели: IPv4 → x.x.x.0/24, CIDR остаётся как есть
+export function netOf(target: string): string | null {
+  if (/^\d+\.\d+\.\d+\.\d+\/\d+$/.test(target)) return target
+  const m = target.match(/^(\d+\.\d+\.\d+)\.\d+$/)
+  return m ? `${m[1]}.0/24` : null
+}
 
 interface TargetCtx {
   target: string
@@ -37,7 +45,11 @@ export function TargetProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo<TargetCtx>(
-    () => ({ target, setTarget, apply: (cmd) => (target ? cmd.replace(PLACEHOLDER, target) : cmd) }),
+    () => ({ target, setTarget, apply: (cmd) => {
+        const net = netOf(target)
+        return (target ? cmd.replace(PLACEHOLDER, target) : cmd).replace(NET, net ?? '<net>')
+      },
+    }),
     [target, setTarget],
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
@@ -49,4 +61,4 @@ export function useTarget() {
   return ctx
 }
 
-export const hasPlaceholder = (cmd: string) => /<(?:ip|target)>/.test(cmd)
+export const hasPlaceholder = (cmd: string) => /<(?:ip|target|domain|net)>/.test(cmd)

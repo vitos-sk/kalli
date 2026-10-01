@@ -1,4 +1,4 @@
-import { LifeBuoy, Menu, Rocket, Search, Star } from 'lucide-react'
+import { CircleHelp, LifeBuoy, Menu, Search, Star } from 'lucide-react'
 import { SPECIAL } from '@/lib/special'
 import { cn } from '@/lib/utils'
 
@@ -12,7 +12,7 @@ interface Props {
 // Нижняя навигация для телефона: большие зоны нажатия под большой палец
 export function BottomNav({ activeId, onBranches, onSearch, onGo }: Props) {
   const items = [
-    { label: 'Старт', icon: Rocket, on: () => onGo('start'), active: activeId === 'start' },
+    { label: 'Вопросы', icon: CircleHelp, on: () => onGo('questions'), active: activeId === 'questions' },
     { label: 'Ветки', icon: Menu, on: onBranches, active: !SPECIAL.some((p) => p.id === activeId) },
     { label: 'Ситуации', icon: LifeBuoy, on: () => onGo('situations'), active: activeId === 'situations' },
     { label: 'Поиск', icon: Search, on: onSearch, active: false },

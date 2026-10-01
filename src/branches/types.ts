@@ -8,6 +8,8 @@ export interface Sample {
   id: string
   label: string
   text: string
+  /** Показывать как пример на странице «Разобрать вывод» */
+  explain?: boolean
 }
 
 // Что получает встроенный инструмент от оболочки
@@ -61,6 +63,8 @@ export interface Finding {
   tone?: 'good' | 'warn' | 'info'
   /** id ситуации «что делать, если…» для перехода */
   situationId?: string
+  /** Кнопки «подставить как цель» (найденный IP, адрес роутера…) */
+  actions?: { label: string; target: string }[]
 }
 
 // Сценарий «по шагам»: цепочка команд с пояснением на каждом шаге
@@ -70,6 +74,8 @@ export interface PlaybookStep {
   cmd?: string
   /** id примера из samples — кнопка «что увидишь» напечатает его в терминал */
   sampleId?: string
+  /** Как понять, что шаг выполнен: «готово, когда…» */
+  goal?: string
 }
 
 export interface Playbook {

@@ -69,6 +69,12 @@ export function Playbooks({ openId, onOpen }: { openId?: string; onOpen: (id?: s
               <div className="space-y-3 p-4">
                 <p className="text-[15px] leading-relaxed text-foreground/90">{st.text}</p>
                 {st.cmd && <CommandLine cmd={st.cmd} />}
+                {st.goal && (
+                  <p className="border-l-2 border-primary bg-accent px-3 py-2 text-sm">
+                    <span className="label mr-2 text-[9px] text-primary">готово, когда</span>
+                    {st.goal}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {sample && (
                     <button type="button" onClick={() => play(sample.text)} className="label flex h-9 cursor-pointer items-center gap-2 border border-primary/60 px-3 text-primary hover:bg-primary hover:text-primary-foreground">

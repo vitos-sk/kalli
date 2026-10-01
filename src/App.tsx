@@ -7,6 +7,7 @@ import { CommandPalette } from '@/components/CommandPalette'
 import { Explain } from '@/components/Explain'
 import { Favorites } from '@/components/Favorites'
 import { Labs } from '@/components/Labs'
+import { QuestionsPage } from '@/components/QuestionsPage'
 import { StartPage } from '@/components/StartPage'
 import { Playbooks } from '@/components/Playbooks'
 import { RoutePage } from '@/components/RoutePage'
@@ -43,10 +44,10 @@ function Shell() {
     if (route.id) return
     try {
       const [id, sub] = (localStorage.getItem(LAST) ?? '').split('/')
-      // первый заход — на страницу «С чего начать»
-      go(id || 'start', id ? sub || undefined : undefined)
+      // первый заход — на «Вопросы и ответы»
+      go(id || 'questions', id ? sub || undefined : undefined)
     } catch {
-      go('start')
+      go('questions')
     }
   }, [route.id, go])
   useEffect(() => {
@@ -96,7 +97,7 @@ function Shell() {
   const pick = (h: Hit) => {
     setSearchOpen(false)
     setDrawer(false)
-    go(h.to.id, h.to.sub)
+    go(h.to.id, h.to.sub, h.to.sub2)
     setFlash(h.cmd)
     if (h.cmd) window.setTimeout(() => setFlash(undefined), 2500)
   }
@@ -138,6 +139,7 @@ function Shell() {
 
         <main className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-8 md:py-10">
+            {route.id === 'questions' && <QuestionsPage topicId={route.sub} qid={route.sub2} go={go} />}
             {route.id === 'start' && <StartPage onGo={select} />}
             {route.id === 'situations' && <Situations openId={route.sub} onOpen={(id) => go('situations', id)} />}
             {route.id === 'playbooks' && <Playbooks openId={route.sub} onOpen={(id) => go('playbooks', id)} />}

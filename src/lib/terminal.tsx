@@ -45,6 +45,7 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
   const [lastText, setLastText] = useState('')
   const timer = useRef<number | undefined>(undefined)
   const pending = useRef<string[]>([]) // ещё не напечатанные строки
+  const hinted = useRef(false) // подсказка уже на экране — второй раз не печатаем
   const hints = useRef<LineHint[]>([])
 
   const handle = useXTerm({
@@ -81,6 +82,7 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
     setLastText('')
     terminal.write(CLEAR)
     terminal.write(IDLE_HINT)
+    hinted.current = true
   }, [stop, terminal])
 
   const play = useCallback(
@@ -121,7 +123,7 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
     document.fonts.load(`13px ${FONT}`).then(() => {
       if (terminal.term) terminal.term.options.fontFamily = FONT
       terminal.fit()
-      terminal.write(IDLE_HINT) // первая подсказка — когда xterm уже готов
+      if (!hinted.current) terminal.write(IDLE_HINT) // первая подсказка — когда xterm уже готов
     })
     return () => window.clearTimeout(timer.current)
     // eslint-disable-next-line

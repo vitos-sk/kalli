@@ -1,12 +1,13 @@
 import type { BranchConfig } from '@/branches/types'
 import { SPECIAL } from '@/lib/special'
+import { topics } from '@/topics'
 
 export interface Hit {
-  kind: 'branch' | 'command' | 'guide' | 'situation' | 'page' | 'playbook'
+  kind: 'branch' | 'command' | 'guide' | 'situation' | 'page' | 'playbook' | 'question'
   title: string
   sub: string
   /** Куда перейти: id страницы и второй сегмент (вкладка / ситуация) */
-  to: { id: string; sub?: string }
+  to: { id: string; sub?: string; sub2?: string }
   /** для команд — что подсветить после перехода */
   cmd?: string
   hay: string
@@ -55,6 +56,14 @@ export function buildIndex(branches: BranchConfig[]): Hit[] {
       })
     }
   }
+  for (const t of topics) {
+    for (const q of t.questions) {
+      out.push({
+        kind: 'question', title: q.q, sub: `вопрос · ${t.title}`, to: { id: 'questions', sub: t.id, sub2: q.id },
+        hay: clean(`${q.q} ${q.a.replace(/[*`]/g, '')} ${(q.keywords ?? []).join(' ')}`), boost: 3,
+      })
+    }
+  }
   for (const p of SPECIAL) {
     out.push({ kind: 'page', title: p.title, sub: 'раздел', to: { id: p.id }, hay: clean(`${p.title} ${(p.keywords ?? []).join(' ')}`), boost: 0 })
   }
@@ -65,7 +74,7 @@ export function buildIndex(branches: BranchConfig[]): Hit[] {
 // Если слов больше двух — допускаем, что одно не нашлось.
 export function search(index: Hit[], query: string, limit = 8): Hit[] {
   const tokens = tokenize(query).map(stem)
-  if (!tokens.length) return index.filter((h) => h.kind === 'situation' || h.kind === 'page' || h.kind === 'playbook').slice(0, limit)
+  if (!tokens.length) return index.filter((h) => h.kind === 'page').slice(0, limit)
   const need = tokens.length > 2 ? tokens.length - 1 : tokens.length
   return index
     .map((h) => {

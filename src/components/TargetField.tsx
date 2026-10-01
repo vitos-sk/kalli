@@ -15,7 +15,7 @@ export function TargetField() {
   return (
     <div className="mb-4 space-y-2 border bg-card p-3 sm:p-4">
       <label htmlFor="target" className="label flex items-center gap-2 text-primary">
-        <Crosshair className="size-3.5" /> цель
+        <Crosshair className="size-3.5" /> цель: IP, домен или сеть
       </label>
       <div className="flex gap-2">
         <div className="flex min-w-0 flex-1 items-center border bg-black focus-within:border-primary">
@@ -36,13 +36,17 @@ export function TargetField() {
             </button>
           )}
         </div>
-        <button type="button" onClick={() => setTarget('scanme.nmap.org')} className="label h-10 shrink-0 cursor-pointer border border-primary/60 px-3 text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
-          <span className="sm:hidden">scanme</span>
-          <span className="hidden sm:inline">scanme.nmap.org</span>
-        </button>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="label text-[9px] text-muted-foreground">быстро:</span>
+        {[['мой компьютер', '127.0.0.1'], ['scanme.nmap.org', 'scanme.nmap.org']].map(([label, v]) => (
+          <button key={v} type="button" onClick={() => setTarget(v)} className={cn('label h-7 cursor-pointer border px-2 text-[10px] transition-colors', target === v ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 text-primary hover:bg-primary/10')}>
+            {label}
+          </button>
+        ))}
       </div>
       <p className="text-xs text-muted-foreground">
-        Подставится в команды вместо <span className="font-mono text-primary">&lt;ip&gt;</span>. Сканируй только свои цели и учебные мишени.{' '}
+        Подставится в команды вместо <span className="font-mono text-primary">&lt;ip&gt;</span>, <span className="font-mono text-primary">&lt;domain&gt;</span> и <span className="font-mono text-primary">&lt;net&gt;</span> (сеть из твоего IP). Сканируй только свои цели и учебные мишени.{' '}
         <a href="#/start" className="whitespace-nowrap text-primary underline underline-offset-2">Где взять IP?</a>
       </p>
 

@@ -1,11 +1,11 @@
-import { BookOpen, CornerDownLeft, FolderOpen, LifeBuoy, ListChecks, Search, SquareTerminal } from 'lucide-react'
+import { BookOpen, CircleHelp, CornerDownLeft, FolderOpen, LifeBuoy, ListChecks, Search, SquareTerminal } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { branches } from '@/branches'
 import { buildIndex, search, type Hit } from '@/lib/search'
 import { cn } from '@/lib/utils'
 
-const ICON = { branch: FolderOpen, guide: BookOpen, command: SquareTerminal, situation: LifeBuoy, page: FolderOpen, playbook: ListChecks }
-const KIND = { branch: 'ветка', guide: 'гайд', command: 'команда', situation: 'ситуация', page: 'раздел', playbook: 'сценарий' }
+const ICON = { branch: FolderOpen, guide: BookOpen, command: SquareTerminal, situation: LifeBuoy, page: FolderOpen, playbook: ListChecks, question: CircleHelp }
+const KIND = { branch: 'ветка', guide: 'гайд', command: 'команда', situation: 'ситуация', page: 'раздел', playbook: 'сценарий', question: 'вопрос' }
 
 // Окно поиска (⌘K / Ctrl+K / «/»): по веткам, гайдам и командам
 export function CommandPalette({ onClose, onPick }: { onClose: () => void; onPick: (h: Hit) => void }) {

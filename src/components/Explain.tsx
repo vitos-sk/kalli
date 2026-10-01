@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { branches } from '@/branches'
 import { PageTitle } from '@/components/Situations'
 import { Window } from '@/components/ui/card'
+import { useTarget } from '@/lib/target'
 import { explainLine } from '@/lib/explain'
 import { cn } from '@/lib/utils'
 import type { Finding } from '@/branches/types'
@@ -14,17 +15,23 @@ const TONE = { good: 'text-primary', warn: 'text-[#f5c542]', info: 'text-muted-f
 // Вставляешь свой вывод — получаешь итог и пояснение к каждой строке. Всё считается в браузере.
 export function Explain({ onSituation }: { onSituation: (id: string) => void }) {
   const [text, setText] = useState('')
+  const { target, setTarget } = useTarget()
 
   const ready = branches.filter((b) => !b.soon)
   const hints = useMemo(() => ready.flatMap((b) => b.lineHints ?? []), [ready])
-  const sample = ready.find((b) => b.samples?.length)?.samples?.[1]?.text ?? ''
+  const examples = ready.flatMap((b) => (b.samples ?? []).filter((x) => x.explain))
 
-  const findings: Finding[] = useMemo(() => (text.trim() ? ready.flatMap((b) => b.analyze?.(text) ?? []) : []), [ready, text])
+  // общий разбор nmap подключён в нескольких ветках — убираем повторы по тексту
+  const findings: Finding[] = useMemo(() => {
+    if (!text.trim()) return []
+    const seen = new Set<string>()
+    return ready.flatMap((b) => b.analyze?.(text) ?? []).filter((f) => !seen.has(f.text) && !!seen.add(f.text))
+  }, [ready, text])
   const lines = useMemo(() => text.split('\n').slice(0, 300), [text])
 
   return (
     <div className="space-y-4">
-      <PageTitle title="Разобрать вывод" hint="Вставь результат nmap — объясню, что в нём важно, и подскажу, что делать дальше." />
+      <PageTitle title="Разобрать вывод" hint="Вставь вывод команды — ifconfig, nmap, lsof, curl, dig — объясню, что в нём важно, где твой IP и что делать дальше." />
 
       <Window title="вставь вывод" bodyClassName="space-y-3">
         <textarea
@@ -33,15 +40,20 @@ export function Explain({ onSituation }: { onSituation: (id: string) => void }) 
           rows={9}
           spellCheck={false}
           aria-label="Вывод для разбора"
-          placeholder={'Starting Nmap 7.94 ( https://nmap.org )\nPORT   STATE SERVICE\n22/tcp open  ssh\n…'}
+          placeholder={'Вставь сюда вывод команды, например ifconfig:\n\nen0: flags=8863<UP,BROADCAST…>\n\tinet 192.168.1.23 netmask 0xffffff00\n…'}
           className="w-full resize-y border bg-black p-3 font-mono text-sm outline-none placeholder:text-muted-foreground/50 focus:border-primary"
         />
+        <div className="space-y-2">
+          <p className="label text-[10px] text-muted-foreground">или попробуй на примере</p>
+          <div className="flex flex-wrap gap-2">
+            {examples.map((x) => (
+              <button key={x.id} type="button" onClick={() => setText(x.text)} className="cursor-pointer border border-primary/50 px-3 py-1.5 text-sm text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
+                {x.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
-          {sample && (
-            <button type="button" onClick={() => setText(sample)} className="label h-9 cursor-pointer border border-primary/60 px-3 text-primary hover:bg-primary hover:text-primary-foreground">
-              вставить пример
-            </button>
-          )}
           {text && (
             <button type="button" onClick={() => setText('')} className="label h-9 cursor-pointer px-3 text-muted-foreground hover:text-foreground">
               очистить
@@ -63,7 +75,23 @@ export function Explain({ onSituation }: { onSituation: (id: string) => void }) 
                   return (
                     <li key={i} className="flex items-start gap-3 text-[15px] leading-relaxed">
                       <Icon className={cn('mt-1 size-4 shrink-0', TONE[f.tone ?? 'info'])} />
-                      <span className="flex-1">{f.text}</span>
+                      <span className="min-w-0 flex-1">
+                        {f.text}
+                        {f.actions && (
+                          <span className="mt-2 flex flex-wrap gap-2">
+                            {f.actions.map((a) => (
+                              <button
+                                key={a.target}
+                                type="button"
+                                onClick={() => setTarget(a.target)}
+                                className={cn('label h-8 cursor-pointer px-2.5 text-[10px]', target === a.target ? 'border border-primary text-primary' : 'bg-primary text-primary-foreground hover:bg-foreground')}
+                              >
+                                {target === a.target ? '✓ ' : ''}{a.label}
+                              </button>
+                            ))}
+                          </span>
+                        )}
+                      </span>
                       {f.situationId && (
                         <button type="button" onClick={() => onSituation(f.situationId!)} className="label shrink-0 cursor-pointer text-[10px] text-primary hover:underline">
                           что делать
