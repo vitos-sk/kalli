@@ -1,0 +1,121 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource/pixelify-sans/400.css';
+@import '@fontsource/pixelify-sans/700.css';
+@import '@fontsource/pixelify-sans/cyrillic-400.css';
+@import '@fontsource/pixelify-sans/cyrillic-700.css';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@xterm/xterm/css/xterm.css';
+@import 'tailwindcss';
+
+/* Тёмная тема — единственная; токены в именах shadcn/ui */
+:root {
+  --background: #050505;
+  --foreground: #ece6d3;
+  --card: #0a0a0b;
+  --card-foreground: #ece6d3;
+  --popover: #0a0a0b;
+  --popover-foreground: #ece6d3;
+  --primary: #f23f9c; /* кислотно-розовый */
+  --primary-foreground: #050505;
+  --secondary: #131316;
+  --secondary-foreground: #ece6d3;
+  --muted: #131316;
+  --muted-foreground: #8f8a7c;
+  --accent: #1a0d14;
+  --accent-foreground: #f23f9c;
+  --border: #2c2c31;
+  --input: #2c2c31;
+  --ring: #f23f9c;
+  --radius: 0px; /* квадратные «окна» */
+  --violet: #7a5cff; /* редкий второй глитч-цвет */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-display: 'Pixelify Sans', 'JetBrains Mono Variable', monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    /* тонкая сетка на чёрном */
+    background-color: var(--background);
+    background-image:
+      linear-gradient(rgb(236 230 211 / 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(236 230 211 / 0.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* тонкие тёмные скроллбары */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #3a2030 transparent;
+  }
+}
+
+/* xterm: подгоняем фон и шрифт под тему */
+.xterm {
+  padding: 8px 12px;
+}
+.xterm-viewport {
+  background-color: transparent !important;
+}
+
+/* глитч-заголовок: смещённые розовый и фиолетовый «призраки» */
+.glitch {
+  font-family: var(--font-display);
+  text-shadow: 1.5px 0 var(--primary), -1.5px 0 var(--violet);
+}
+.pixel {
+  font-family: var(--font-display);
+}
+/* подпись окна: мелкий моно капсом */
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+/* пиксельная полоска-«загрузка» */
+.stripes {
+  background-image: repeating-linear-gradient(90deg, var(--primary) 0 6px, transparent 6px 9px);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .blink { animation: blink 1.1s steps(2, start) infinite; }
+}
+@keyframes blink { to { visibility: hidden; } }
