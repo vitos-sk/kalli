@@ -28,8 +28,8 @@ export const siteHints: LineHint[] = [
   { pattern: /^location:\s*(.+)/i, text: (m) => `Редирект на ${m[1]}. Для http-адреса ждём перехода на https.` },
   { pattern: /^set-cookie:/i, text: 'Cookie. Для входа на сайт должны быть флаги Secure и HttpOnly.' },
   // dig +short
-  { pattern: /"v=spf1\b/, text: 'SPF: список серверов, которым можно слать почту от имени твоего домена. Чем строже (-all), тем лучше.' },
-  { pattern: /"v=DMARC1\b/, text: 'DMARC: что делать с письмами, которые подделали под твой домен. p=reject — строже всего.' },
+  { pattern: /"v=spf1\b/, text: 'SPF: список серверов, которым можно слать почту от имени этого домена. Чем строже (-all), тем лучше.' },
+  { pattern: /"v=DMARC1\b/, text: 'DMARC: что делать с письмами, которые подделали под этот домен. p=reject — строже всего.' },
   { pattern: /^notBefore=/, text: 'Сертификат действует С этой даты.' },
   { pattern: /^notAfter=(.+)/, text: (m) => { const d = daysLeft(m[1]); return `Сертификат действует ДО этой даты${d === null ? '' : `: осталось ${d} дн.`} Не забудь продлить.` } },
   { pattern: /^\s*(?:Registry Expiry Date|paid-till|Expiry date):\s*(\S+)/i, text: (m) => { const d = daysLeft(m[1]); return `Домен оплачен до этой даты${d === null ? '' : ` (осталось ${d} дн.)`}. Не продлишь — потеряешь сайт и почту.` } },

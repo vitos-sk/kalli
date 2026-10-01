@@ -8,7 +8,7 @@ const DEFAULT_HINT = 'Запусти пример, потом наведи на 
 
 // Сворачиваемая панель снизу. xterm всегда смонтирован: содержимое не теряется.
 export function TerminalPanel() {
-  const { terminal, open, setOpen, running, skip, play, lastText, explain } = useShellTerminal()
+  const { terminal, open, setOpen, running, skip, play, lastText, label, explain } = useShellTerminal()
   const wrap = useRef<HTMLDivElement>(null)
   const [hint, setHint] = useState<{ top: number; h: number; text: string } | null>(null)
 
@@ -48,11 +48,16 @@ export function TerminalPanel() {
           type="button"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
-          className="label flex h-full flex-1 cursor-pointer items-center gap-2 px-4 text-left text-muted-foreground transition-colors hover:text-foreground"
+          className="label flex h-full min-w-0 flex-1 cursor-pointer items-center gap-2 px-4 text-left text-muted-foreground transition-colors hover:text-foreground"
         >
-          <TerminalIcon className="size-3.5 text-primary" />
-          <span>терминал.exe</span>
-          {running && <span className="blink size-2 bg-primary" />}
+          <TerminalIcon className="size-3.5 shrink-0 text-primary" />
+          <span className="shrink-0">терминал.exe</span>
+          {running && <span className="blink size-2 shrink-0 bg-primary" />}
+          {label && (
+            <span className="min-w-0 truncate text-foreground/80 normal-case tracking-normal">
+              <span className="text-muted-foreground">{running ? 'выполняется:' : 'показан пример:'}</span> <span className="font-mono text-primary">{label}</span>
+            </span>
+          )}
         </button>
         {running && (
           <button type="button" onClick={skip} className="label flex h-7 cursor-pointer items-center gap-1.5 border border-primary/60 px-2 text-[10px] text-primary hover:bg-primary hover:text-primary-foreground">
@@ -60,7 +65,7 @@ export function TerminalPanel() {
           </button>
         )}
         {!running && lastText && (
-          <button type="button" onClick={() => play(lastText)} className="label flex h-7 cursor-pointer items-center gap-1.5 border border-primary/60 px-2 text-[10px] text-primary hover:bg-primary hover:text-primary-foreground">
+          <button type="button" onClick={() => play(lastText, label)} className="label flex h-7 cursor-pointer items-center gap-1.5 border border-primary/60 px-2 text-[10px] text-primary hover:bg-primary hover:text-primary-foreground">
             <RotateCcw className="size-3" /> ещё раз
           </button>
         )}

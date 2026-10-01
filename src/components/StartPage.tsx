@@ -69,7 +69,7 @@ export function StartPage({ onGo }: { onGo: (id: string) => void }) {
         </div>
 
         <div className="space-y-2 border-t pt-5">
-          <p className="flex items-center gap-3"><Step n={3} /> <span><strong>Свой сайт или домен</strong></span></p>
+          <p className="flex items-center gap-3"><Step n={3} /> <span><strong>Сайт или домен, с которым работаешь</strong></span></p>
           <p className="text-sm text-muted-foreground">Впиши домен в поле цели (без <span className="font-mono">https://</span>). Проверим, куда он ведёт, когда истекает домен и сертификат, какие защитные заголовки включены и что открыто на сервере.</p>
           <Go onClick={() => onGo('own-site')}>проверить сайт и домен</Go>
         </div>

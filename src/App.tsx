@@ -5,6 +5,8 @@ import { BottomNav } from '@/components/BottomNav'
 import { BranchPage } from '@/components/BranchPage'
 import { CommandPalette } from '@/components/CommandPalette'
 import { Explain } from '@/components/Explain'
+import { Breadcrumb, type Crumb } from '@/components/Breadcrumb'
+import { topics as topicsRef } from '@/topics'
 import { Favorites } from '@/components/Favorites'
 import { Labs } from '@/components/Labs'
 import { QuestionsPage } from '@/components/QuestionsPage'
@@ -103,6 +105,39 @@ function Shell() {
     if (h.cmd) window.setTimeout(() => setFlash(undefined), 2500)
   }
 
+
+  // Путь для хлебной крошки: раздел → подраздел, с кликом на предыдущий уровень
+  const crumbs: Crumb[] = (() => {
+    if (active) {
+      const list: Crumb[] = [{ label: active.title, onClick: () => go(active.id) }]
+      if (route.sub) list.push({ label: route.sub === 'tool' ? 'Инструмент' : route.sub === 'guide' ? 'Гайд' : 'Команды' })
+      return list
+    }
+    if (!special) return []
+    const list: Crumb[] = [{ label: special.title, onClick: () => go(special.id) }]
+    if (route.sub) {
+      if (special.id === 'questions') {
+        const t = topicsRef.find((x) => x.id === route.sub)
+        if (t) {
+          list.push({ label: t.title, onClick: () => go('questions', t.id) })
+          if (route.sub2) {
+            const q = t.questions.find((x) => x.id === route.sub2)
+            if (q) list.push({ label: q.q })
+          }
+        }
+      } else if (special.id === 'playbooks') {
+        const pb = branches.flatMap((b) => b.playbooks ?? []).find((x) => x.id === route.sub)
+        if (pb) list.push({ label: pb.title })
+      } else if (special.id === 'situations') {
+        const s2 = branches.flatMap((b) => b.situations ?? []).find((x) => x.id === route.sub)
+        if (s2) list.push({ label: s2.title })
+      } else if (special.id === 'values') {
+        list.push({ label: route.sub })
+      }
+    }
+    return list
+  })()
+
   if (!pageId) return null
 
   return (
@@ -140,6 +175,7 @@ function Shell() {
 
         <main className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-8 md:py-10">
+            <Breadcrumb items={crumbs} />
             {route.id === 'questions' && <QuestionsPage topicId={route.sub} qid={route.sub2} go={go} />}
             {route.id === 'values' && <ValuesPage openToken={route.sub} go={go} />}
             {route.id === 'start' && <StartPage onGo={select} />}

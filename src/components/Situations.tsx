@@ -1,4 +1,5 @@
 import { ChevronRight } from 'lucide-react'
+import { useEffect } from 'react'
 import { branches } from '@/branches'
 import { CommandCard } from '@/components/Commands'
 import { Md } from '@/components/Md'
@@ -7,6 +8,11 @@ import { cn } from '@/lib/utils'
 
 // «Что делать, если…»: человек приходит с проблемой, а не с названием инструмента
 export function Situations({ openId, onOpen }: { openId?: string; onOpen: (id?: string) => void }) {
+  // переход по ссылке на ситуацию — прокручиваем к ней
+  useEffect(() => {
+    if (openId) document.getElementById(`sit-${openId}`)?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }, [openId])
+
   const items = branches.flatMap((b) => (b.situations ?? []).map((s) => ({ b, s })))
 
   return (
@@ -17,7 +23,7 @@ export function Situations({ openId, onOpen }: { openId?: string; onOpen: (id?: 
         {items.map(({ b, s }) => {
           const open = s.id === openId
           return (
-            <li key={`${b.id}-${s.id}`} className={cn('border bg-card', open && 'border-primary/60')}>
+            <li key={`${b.id}-${s.id}`} id={`sit-${s.id}`} className={cn('scroll-mt-4 border bg-card', open && 'border-primary/60')}>
               <button
                 type="button"
                 aria-expanded={open}

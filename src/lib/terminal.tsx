@@ -24,7 +24,7 @@ interface TerminalCtx {
   open: boolean
   setOpen: (v: boolean) => void
   /** Напечатать текст построчно (раскрывает панель) */
-  play: (text: string) => void
+  play: (text: string, label?: string) => void
   /** Очистить и показать подсказку */
   idle: () => void
   running: boolean
@@ -32,6 +32,8 @@ interface TerminalCtx {
   skip: () => void
   /** Текст последнего запущенного вывода — для кнопки «ещё раз» */
   lastText: string
+  /** Название примера, который сейчас/последним печатался — для шапки терминала */
+  label: string
   /** Подсказки текущей ветки и поиск пояснения по строке */
   setHints: (h: LineHint[]) => void
   explain: (line: string) => string | null
@@ -43,6 +45,7 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(() => window.innerWidth >= 768) // на телефоне свёрнут по умолчанию
   const [running, setRunning] = useState(false)
   const [lastText, setLastText] = useState('')
+  const [label, setLabel] = useState('')
   const timer = useRef<number | undefined>(undefined)
   const pending = useRef<string[]>([]) // ещё не напечатанные строки
   const hinted = useRef(false) // подсказка уже на экране — второй раз не печатаем
@@ -80,18 +83,20 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
     stop()
     pending.current = []
     setLastText('')
+    setLabel('')
     terminal.write(CLEAR)
     terminal.write(IDLE_HINT)
     hinted.current = true
   }, [stop, terminal])
 
   const play = useCallback(
-    (text: string) => {
+    (text: string, newLabel?: string) => {
       stop()
       terminal.write(CLEAR)
       setOpen(true)
       setRunning(true)
       setLastText(text)
+      setLabel(newLabel ?? '')
       pending.current = text.split('\n')
       // печатаем по строке с небольшим разбросом задержки
       const next = () => {
@@ -130,8 +135,8 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ terminal, open, setOpen, play, idle, running, skip, lastText, setHints, explain }),
-    [terminal, open, play, idle, running, skip, lastText, setHints, explain],
+    () => ({ terminal, open, setOpen, play, idle, running, skip, lastText, label, setHints, explain }),
+    [terminal, open, play, idle, running, skip, lastText, label, setHints, explain],
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

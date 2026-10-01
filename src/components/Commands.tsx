@@ -1,10 +1,11 @@
-import { Star } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { HelpCircle, Star } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { CommandLine } from '@/components/CommandLine'
 import { Window } from '@/components/ui/card'
+import { Modal } from '@/components/ui/modal'
 import { favKey, favorites } from '@/lib/store'
 import { cn } from '@/lib/utils'
-import type { BranchCommand } from '@/branches/types'
+import type { BranchCommand, CommandsIntro } from '@/branches/types'
 
 export { CommandLine }
 
@@ -48,12 +49,48 @@ export function CommandCard({ item, branchId, flash = false }: { item: BranchCom
   )
 }
 
-export function Commands({ items, branchId, flashCmd }: { items: BranchCommand[]; branchId: string; flashCmd?: string }) {
+export function Commands({ items, branchId, intro, flashCmd }: { items: BranchCommand[]; branchId: string; intro?: CommandsIntro; flashCmd?: string }) {
+  const [open, setOpen] = useState(false)
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      {items.map((c) => (
-        <CommandCard key={c.cmd} item={c} branchId={branchId} flash={c.cmd === flashCmd} />
-      ))}
+    <div className="space-y-4">
+      {intro && (
+        <>
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="flex w-full cursor-pointer items-center gap-3 border border-primary/60 bg-accent p-3 text-left transition-colors hover:border-primary sm:w-auto"
+          >
+            <HelpCircle className="size-5 shrink-0 text-primary" />
+            <span className="min-w-0 flex-1">
+              <span className="block font-medium text-primary">Зачем эти команды?</span>
+              <span className="block text-sm text-muted-foreground">Что получим и что делать с результатом — простыми словами</span>
+            </span>
+          </button>
+          {open && (
+            <Modal title="Зачем эти команды?" onClose={() => setOpen(false)}>
+              <div className="space-y-4">
+                <section className="space-y-1.5">
+                  <p className="label text-[10px] text-primary">что мы получим</p>
+                  <p className="text-[15px] leading-relaxed text-foreground/90">{intro.get}</p>
+                </section>
+                <section className="space-y-1.5 border-t pt-4">
+                  <p className="label text-[10px] text-primary">зачем это нужно</p>
+                  <p className="text-[15px] leading-relaxed text-foreground/90">{intro.goal}</p>
+                </section>
+                <section className="space-y-1.5 border-t pt-4">
+                  <p className="label text-[10px] text-primary">что делать с результатом</p>
+                  <p className="text-[15px] leading-relaxed text-foreground/90">{intro.result}</p>
+                </section>
+              </div>
+            </Modal>
+          )}
+        </>
+      )}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {items.map((c) => (
+          <CommandCard key={c.cmd} item={c} branchId={branchId} flash={c.cmd === flashCmd} />
+        ))}
+      </div>
     </div>
   )
 }

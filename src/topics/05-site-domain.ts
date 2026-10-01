@@ -3,14 +3,14 @@ import type { Topic } from './types'
 
 const topic: Topic = {
   id: 'site-domain',
-  title: 'Мой сайт и домен',
+  title: 'Сайт, с которым работаешь',
   icon: Globe,
   blurb: 'Куда ведёт домен, когда он истекает, цел ли «замочек» и защищён ли сайт.',
   order: 5,
   questions: [
     {
       id: 'domain-ip',
-      q: 'На какой IP ведёт мой домен?',
+      q: 'На какой IP ведёт домен?',
       level: 'start',
       keywords: ['dns', 'dig', 'ip сайта'],
       a: `Впиши домен в поле цели (без \`https://\`) и запусти команду. В ответе будет IP-адрес. Пусто — значит, у домена нет такой записи.`,
@@ -18,7 +18,7 @@ const topic: Topic = {
     },
     {
       id: 'domain-expiry',
-      q: 'Когда истекает мой домен?',
+      q: 'Когда истекает домен?',
       level: 'start',
       popular: true,
       keywords: ['whois', 'срок домена', 'продлить домен', 'tld'],

@@ -57,7 +57,7 @@ export function BranchPage({ branch, tab, onTab, onGo, flashCmd }: Props) {
         {Tool && (
           <TabsContent value="tool">
             <Tool
-              runSample={(text) => play(text ?? branch.terminalSample)}
+              runSample={(text, label) => play(text ?? branch.terminalSample, label ?? 'пример')}
               samples={branch.samples ?? [{ id: 'default', label: 'Пример', text: branch.terminalSample }]}
             />
           </TabsContent>
@@ -85,7 +85,7 @@ export function BranchPage({ branch, tab, onTab, onGo, flashCmd }: Props) {
             </Window>
           )}
         </TabsContent>
-        <TabsContent value="commands"><Commands items={branch.commands} branchId={branch.id} flashCmd={flashCmd} /></TabsContent>
+        <TabsContent value="commands"><Commands items={branch.commands} branchId={branch.id} intro={branch.commandsIntro} flashCmd={flashCmd} /></TabsContent>
       </Tabs>
     </article>
   )

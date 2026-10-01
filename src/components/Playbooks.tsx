@@ -77,7 +77,7 @@ export function Playbooks({ openId, onOpen }: { openId?: string; onOpen: (id?: s
                 )}
                 <div className="flex flex-wrap gap-2">
                   {sample && (
-                    <button type="button" onClick={() => play(sample.text)} className="label flex h-9 cursor-pointer items-center gap-2 border border-primary/60 px-3 text-primary hover:bg-primary hover:text-primary-foreground">
+                    <button type="button" onClick={() => play(sample.text, sample.label)} className="label flex h-9 cursor-pointer items-center gap-2 border border-primary/60 px-3 text-primary hover:bg-primary hover:text-primary-foreground">
                       <Eye className="size-3.5" /> что увидишь
                     </button>
                   )}

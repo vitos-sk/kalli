@@ -35,7 +35,7 @@ export function SampleTool({ runSample, samples }: ToolProps) {
           </p>
           <p className="text-xs text-muted-foreground/70">Это демонстрация: ничего не выполняется. Свой вывод вставь на странице «Разобрать вывод».</p>
         </div>
-        <Button onClick={() => runSample(current?.text)} className="shrink-0">
+        <Button onClick={() => runSample(current?.text, current?.label)} className="shrink-0">
           <Play /> Запустить пример
         </Button>
       </div>

@@ -15,7 +15,7 @@ export interface Sample {
 // Что получает встроенный инструмент от оболочки
 export interface ToolProps {
   /** Напечатать текст (по умолчанию — terminalSample ветки) в терминал построчно */
-  runSample: (text?: string) => void
+  runSample: (text?: string, label?: string) => void
   /** Дополнительные примеры вывода из конфига ветки */
   samples: Sample[]
 }
@@ -89,6 +89,16 @@ export interface Playbook {
   steps: PlaybookStep[]
 }
 
+// Объяснение «зачем эти команды» для модалки в начале раздела «Команды»
+export interface CommandsIntro {
+  /** Что мы получаем, запуская эти команды */
+  get: string
+  /** Для чего это нужно */
+  goal: string
+  /** Что делать с результатом */
+  result: string
+}
+
 // Конфиг одной ветки пентеста. Новая ветка = новый файл в src/branches/
 export interface BranchConfig {
   id: string
@@ -99,6 +109,8 @@ export interface BranchConfig {
   /** Markdown-текст гайда */
   guide: string
   commands: BranchCommand[]
+  /** Объяснение «зачем» для кнопки в начале раздела «Команды» */
+  commandsIntro?: CommandsIntro
   /** Пример вывода — показывается в терминале построчно */
   terminalSample: string
   /** Порядок в сайдбаре (меньше — выше) */
