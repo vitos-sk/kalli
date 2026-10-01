@@ -44,7 +44,6 @@ export function createSetStore(key: string) {
 }
 
 export const favorites = createSetStore('pentest-cheats:fav')
-export const learned = createSetStore('pentest-cheats:learned')
 export const favKey = (branchId: string, cmd: string) => `${branchId}::${cmd}`
 
 // Хранилище «ключ → текст» (заметки к целям)

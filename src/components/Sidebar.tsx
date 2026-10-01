@@ -1,6 +1,5 @@
-import { Check, PanelLeftClose, PanelLeftOpen, ShieldHalf } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen, ShieldHalf } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { learned } from '@/lib/store'
 import { SPECIAL, type SpecialGroup } from '@/lib/special'
 import { cn } from '@/lib/utils'
 import type { BranchConfig } from '@/branches/types'
@@ -73,7 +72,6 @@ function GroupLabel({ children }: { children: string }) {
 
 // Список веток и служебных страниц. Используется и в десктопном сайдбаре, и в мобильной шторке.
 export function SidebarNav({ branches, activeId, onSelect, collapsed = false, onToggle }: Props) {
-  const done = learned.use()
   const top = SPECIAL.filter((p) => p.group === 'top')
   const groups: SpecialGroup[] = ['tools', 'progress', 'more']
 
@@ -105,12 +103,7 @@ export function SidebarNav({ branches, activeId, onSelect, collapsed = false, on
               collapsed={collapsed}
               disabled={b.soon}
               onSelect={onSelect}
-              right={
-                <>
-                  {b.soon && <Badge>скоро</Badge>}
-                  {done.includes(b.id) && <Check className="size-4 text-primary" aria-label="изучено" />}
-                </>
-              }
+              right={b.soon && <Badge>скоро</Badge>}
             />
           ))}
         </div>

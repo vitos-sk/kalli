@@ -1,11 +1,9 @@
-import { ArrowRight, BookOpen, Check, SquareTerminal, Wrench } from 'lucide-react'
+import { ArrowRight, BookOpen, SquareTerminal, Wrench } from 'lucide-react'
 import { branches } from '@/branches'
 import { Commands } from '@/components/Commands'
 import { Guide } from '@/components/Guide'
 import { TargetField } from '@/components/TargetField'
 import { Window } from '@/components/ui/card'
-import { learned } from '@/lib/store'
-import { cn } from '@/lib/utils'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useShellTerminal } from '@/lib/terminal'
 import { tokensIn } from '@/lib/target'
@@ -26,7 +24,6 @@ export function BranchPage({ branch, tab, onTab, onGo, flashCmd }: Props) {
   const Icon = branch.icon
   const asTab = (['tool', 'guide', 'commands'] as string[]).includes(tab ?? '') ? (tab as TabId) : undefined
   const current: TabId = asTab && (asTab !== 'tool' || Tool) ? asTab : Tool ? 'tool' : 'guide'
-  const isDone = learned.use().includes(branch.id)
   const tokens = tokensIn(branch.commands.map((c) => c.cmd))
 
   return (
@@ -35,15 +32,6 @@ export function BranchPage({ branch, tab, onTab, onGo, flashCmd }: Props) {
         <Icon className="size-6 text-primary" />
         {branch.title}
       </h1>
-
-      <button
-        type="button"
-        aria-pressed={isDone}
-        onClick={() => learned.toggle(branch.id)}
-        className={cn('label mb-4 hidden h-8 cursor-pointer items-center gap-2 border px-3 transition-colors md:inline-flex', isDone ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 text-primary hover:bg-primary/10')}
-      >
-        <Check className="size-3.5" /> {isDone ? 'изучено' : 'отметить изученным'}
-      </button>
 
       <Tabs value={current} onValueChange={(v) => onTab(v as TabId)}>
         <TabsList>
