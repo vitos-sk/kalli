@@ -7,6 +7,7 @@ const topic: Topic = {
   icon: Globe,
   blurb: 'Куда ведёт домен, когда он истекает, цел ли «замочек» и защищён ли сайт.',
   order: 5,
+  category: 'tvoe',
   questions: [
     {
       id: 'domain-ip',

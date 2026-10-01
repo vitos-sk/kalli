@@ -7,6 +7,7 @@ const topic: Topic = {
   icon: Eye,
   blurb: 'open, closed, filtered, коды 200 и 404 — что значит то, что ты видишь.',
   order: 6,
+  category: 'osnovy',
   questions: [
     {
       id: 'dont-understand',

@@ -7,6 +7,7 @@ const topic: Topic = {
   icon: Code,
   blurb: 'Какие порты открыты на компьютере и не виден ли твой проект всей сети.',
   order: 3,
+  category: 'tvoe',
   questions: [
     {
       id: 'what-listens',

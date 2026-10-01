@@ -7,6 +7,7 @@ const topic: Topic = {
   icon: Lightbulb,
   blurb: 'IP, порт, домен, роутер, терминал — что это и зачем. Начни отсюда.',
   order: 1,
+  category: 'osnovy',
   questions: [
     {
       id: 'placeholders',

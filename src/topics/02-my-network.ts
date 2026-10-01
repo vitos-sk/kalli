@@ -7,6 +7,7 @@ const topic: Topic = {
   icon: Wifi,
   blurb: 'Свой IP, адрес роутера, кто подключён к Wi-Fi и как закрыть лишнее.',
   order: 2,
+  category: 'tvoe',
   questions: [
     {
       id: 'my-ip',

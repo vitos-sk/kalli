@@ -7,6 +7,7 @@ const topic: Topic = {
   icon: Scale,
   blurb: 'Что можно, где тренироваться и с чего начать учиться.',
   order: 7,
+  category: 'osnovy',
   questions: [
     {
       id: 'can-i-scan-other',

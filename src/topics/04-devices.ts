@@ -7,6 +7,7 @@ const topic: Topic = {
   icon: Cpu,
   blurb: 'Найти все свои устройства: камеры, принтеры, датчики, и понять, что это.',
   order: 4,
+  category: 'tvoe',
   questions: [
     {
       id: 'find-devices',

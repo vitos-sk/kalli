@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import type { CategoryId } from '@/lib/categories'
 
 // Куда ведёт ссылка «открыть полностью»
 export interface Dest {
@@ -34,5 +35,7 @@ export interface Topic {
   /** Одна фраза: о чём эта тема */
   blurb: string
   order: number
+  /** Категория направления — см. src/lib/categories.ts */
+  category: CategoryId
   questions: Question[]
 }
