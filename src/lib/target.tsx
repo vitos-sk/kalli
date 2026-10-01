@@ -95,3 +95,10 @@ export function useTarget() {
 }
 
 export const hasPlaceholder = (cmd: string) => /<(?:ip|target|domain|net|port)>/.test(cmd)
+
+/** Какие заглушки (ip/domain/net/port) встречаются в списке команд */
+export function tokensIn(cmds: (string | undefined)[]): Token[] {
+  const found = new Set<Token>()
+  for (const c of cmds) if (c) for (const t of unresolved(c)) found.add(t)
+  return [...found]
+}

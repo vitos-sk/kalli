@@ -1,21 +1,43 @@
 import { ChevronRight, Copy, Crosshair, X } from 'lucide-react'
 import { useState } from 'react'
 import { notes } from '@/lib/store'
-import { useTarget } from '@/lib/target'
+import { useTarget, type Token } from '@/lib/target'
 import { cn } from '@/lib/utils'
 
 // Цель вводится один раз — и подставляется во все команды вместо <ip>.
 // К каждой цели можно вести заметки (хранятся только в этом браузере).
-export function TargetField() {
+// tokens — какие заглушки есть в командах на странице: лишние поля не показываем.
+// Пока цель задана, блок сворачивается в одну строку.
+const ALL: Token[] = ['ip', 'domain', 'net', 'port']
+
+export function TargetField({ tokens = ALL }: { tokens?: Token[] }) {
   const { target, setTarget, port, setPort } = useTarget()
+  const needPort = tokens.includes('port')
+  const needHost = tokens.some((t) => t !== 'port')
+  const onlyDomain = tokens.includes('domain') && !tokens.includes('ip') && !tokens.includes('net')
+  const [edit, setEdit] = useState(false)
+  const filled = (!needHost || !!target) && (!needPort || !!port)
   const [open, setOpen] = useState(false)
   const all = notes.use()
   const note = all[target] ?? ''
 
+  if (filled && !edit) {
+    return (
+      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 border bg-card px-3 py-2">
+        <Crosshair className="size-3.5 shrink-0 text-primary" />
+        <span className="label text-[10px] text-muted-foreground">подставлено в команды:</span>
+        {needHost && <span className="font-mono text-sm text-primary">{target}</span>}
+        {needPort && <span className="font-mono text-sm text-primary">порт {port}</span>}
+        <button type="button" onClick={() => setEdit(true)} className="label ml-auto cursor-pointer text-[10px] text-muted-foreground hover:text-primary">изменить</button>
+      </div>
+    )
+  }
+
   return (
     <div className="mb-4 space-y-2 border bg-card p-3 sm:p-4">
+      {needHost && <>
       <label htmlFor="target" className="label flex items-center gap-2 text-primary">
-        <Crosshair className="size-3.5" /> цель: IP, домен или сеть
+        <Crosshair className="size-3.5" /> {onlyDomain ? 'сайт: домен' : tokens.includes('net') && !tokens.includes('ip') ? 'цель: IP (сеть соберётся сама)' : 'цель: IP, домен или сеть'}
       </label>
       <div className="flex gap-2">
         <div className="flex min-w-0 flex-1 items-center border bg-black focus-within:border-primary">
@@ -23,7 +45,7 @@ export function TargetField() {
             id="target"
             value={target}
             onChange={(e) => setTarget(e.target.value)}
-            placeholder="IP или домен, например 192.168.1.10"
+            placeholder={onlyDomain ? 'домен, например example.com' : 'IP или домен, например 192.168.1.10'}
             inputMode="url"
             autoCapitalize="off"
             autoCorrect="off"
@@ -45,8 +67,10 @@ export function TargetField() {
           </button>
         ))}
       </div>
-      <div className="space-y-2 border-t pt-3">
-        <label htmlFor="port" className="label text-[10px] text-muted-foreground">порт — если в команде есть <span className="text-primary">&lt;port&gt;</span></label>
+      </>}
+      {needPort && (
+      <div className={cn('space-y-2 pt-3', needHost && 'border-t')}>
+        <label htmlFor="port" className="label text-[10px] text-muted-foreground">порт — номер «двери» твоей программы</label>
         <div className="flex flex-wrap items-center gap-2">
           <input
             id="port"
@@ -63,10 +87,11 @@ export function TargetField() {
           ))}
         </div>
       </div>
+      )}
 
       <p className="text-xs leading-relaxed text-muted-foreground">
         То, что ты впишешь, подставится в команды вместо заглушек:{' '}
-        {(['ip', 'domain', 'net', 'port'] as const).map((t, i) => (
+        {ALL.filter((t) => tokens.includes(t)).map((t, i) => (
           <span key={t}>{i > 0 && ', '}<a href={`#/values/${t}`} className="font-mono text-primary underline underline-offset-2">&lt;{t}&gt;</a></span>
         ))}
         . Не знаешь, что вписать? <a href="#/values" className="whitespace-nowrap text-primary underline underline-offset-2">Где взять эти значения →</a> Сканируй только свои цели и учебные мишени.
