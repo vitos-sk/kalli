@@ -42,7 +42,7 @@ export function TerminalPanel() {
   }
 
   return (
-    <section aria-label="Терминал" className="shrink-0 border-t bg-black">
+    <section aria-label="Терминал" className="shrink-0 border-t bg-black pb-[env(safe-area-inset-bottom)]">
       <div className="flex h-10 items-center pr-2">
         <button
           type="button"

@@ -1,7 +1,6 @@
-import { Search, X } from 'lucide-react'
+import { Menu, Search, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { branches } from '@/branches'
-import { BottomNav } from '@/components/BottomNav'
 import { BranchPage } from '@/components/BranchPage'
 import { CommandPalette } from '@/components/CommandPalette'
 import { Explain } from '@/components/Explain'
@@ -159,7 +158,7 @@ function Shell() {
       <div className={cn('fixed inset-0 z-40 md:hidden', !drawer && 'pointer-events-none')}>
         <div onClick={() => setDrawer(false)} className={cn('absolute inset-0 bg-black/70 transition-opacity', drawer ? 'opacity-100' : 'opacity-0')} />
         <aside className={cn('absolute inset-y-0 left-0 w-72 max-w-[85vw] border-r bg-background transition-transform duration-200', drawer ? 'translate-x-0' : '-translate-x-full')}>
-          <button type="button" onClick={() => setDrawer(false)} aria-label="Закрыть меню" className="absolute right-2 top-2.5 flex size-9 cursor-pointer items-center justify-center text-muted-foreground hover:text-primary">
+          <button type="button" onClick={() => setDrawer(false)} aria-label="Закрыть меню" className="absolute right-1 top-1 flex size-11 cursor-pointer items-center justify-center text-muted-foreground hover:text-primary">
             <X className="size-5" />
           </button>
           <SidebarNav branches={branches} activeId={pageId} onSelect={select} />
@@ -167,10 +166,26 @@ function Shell() {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* мобильная шапка: навигация внизу, тут только название */}
-        <header className="flex h-12 shrink-0 items-center gap-3 border-b px-4 md:hidden">
-          {Icon && <Icon className="size-4 text-primary" />}
+        {/* мобильная шапка: гамбургер открывает всю навигацию, поиск — рядом */}
+        <header className="flex h-12 shrink-0 items-center gap-1 border-b pl-1 pr-2 md:hidden">
+          <button
+            type="button"
+            onClick={() => setDrawer(true)}
+            aria-label="Открыть меню"
+            className="flex size-11 shrink-0 cursor-pointer items-center justify-center text-muted-foreground hover:text-primary"
+          >
+            <Menu className="size-5" />
+          </button>
+          {Icon && <Icon className="size-4 shrink-0 text-primary" />}
           <span className="pixel min-w-0 flex-1 truncate text-base font-bold uppercase tracking-wide">{title}</span>
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Поиск"
+            className="flex size-11 shrink-0 cursor-pointer items-center justify-center text-muted-foreground hover:text-primary"
+          >
+            <Search className="size-5" />
+          </button>
         </header>
 
         {/* статус-строка (десктоп) */}
@@ -198,7 +213,6 @@ function Shell() {
         </main>
 
         <TerminalPanel />
-        <BottomNav activeId={pageId} onBranches={() => setDrawer(true)} onSearch={() => setSearchOpen(true)} onGo={select} />
       </div>
       {searchOpen && <CommandPalette onClose={() => setSearchOpen(false)} onPick={pick} />}
     </div>
