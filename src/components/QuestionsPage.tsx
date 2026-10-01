@@ -9,6 +9,7 @@ import { buildIndex, search } from '@/lib/search'
 import { understood } from '@/lib/store'
 import { hasPlaceholder, tokensIn } from '@/lib/target'
 import { cn } from '@/lib/utils'
+import { CATEGORIES } from '@/lib/categories'
 import { findQuestion, topics } from '@/topics'
 import type { Question, Topic } from '@/topics/types'
 
@@ -178,26 +179,35 @@ export function QuestionsPage({ topicId, qid, go }: { topicId?: string; qid?: st
             <ArrowRight className="size-4 shrink-0 text-primary" />
           </button>
 
-          <section>
-            <h2 className="label mb-3 text-[10px] text-muted-foreground">темы</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {topics.map((t) => {
-                const Icon = t.icon
-                const n = t.questions.filter((x) => done.includes(key(t.id, x.id))).length
-                return (
-                  <button key={t.id} type="button" onClick={() => go('questions', t.id)} className="flex cursor-pointer flex-col gap-2 border bg-card p-4 text-left transition-colors hover:border-primary/60">
-                    <span className="flex items-center gap-3">
-                      <Icon className="size-5 shrink-0 text-primary" />
-                      <span className="pixel text-base font-bold uppercase tracking-wide">{t.title}</span>
-                    </span>
-                    <span className="text-sm text-muted-foreground">{t.blurb}</span>
-                    <span className="label mt-auto text-[9px] text-primary">
-                      {t.questions.length} вопросов{n > 0 ? ` · понятно ${n}` : ''}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
+          <section className="space-y-5">
+            <h2 className="label text-[10px] text-muted-foreground">темы</h2>
+            {CATEGORIES.map((cat) => {
+              const items = topics.filter((t) => t.category === cat.id)
+              if (!items.length) return null
+              return (
+                <div key={cat.id}>
+                  <p className="label mb-2 text-[9px] text-muted-foreground/70">{cat.title}</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {items.map((t) => {
+                      const Icon = t.icon
+                      const n = t.questions.filter((x) => done.includes(key(t.id, x.id))).length
+                      return (
+                        <button key={t.id} type="button" onClick={() => go('questions', t.id)} className="flex cursor-pointer flex-col gap-2 border bg-card p-4 text-left transition-colors hover:border-primary/60">
+                          <span className="flex items-center gap-3">
+                            <Icon className="size-5 shrink-0 text-primary" />
+                            <span className="pixel text-base font-bold uppercase tracking-wide">{t.title}</span>
+                          </span>
+                          <span className="text-sm text-muted-foreground">{t.blurb}</span>
+                          <span className="label mt-auto text-[9px] text-primary">
+                            {t.questions.length} вопросов{n > 0 ? ` · понятно ${n}` : ''}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
           </section>
 
           <section>
