@@ -41,6 +41,9 @@ const field = (block, key) => {
 }
 const flag = (block, key) => new RegExp(`${key}:\\s*true`).test(block)
 
+// Должно оставаться в синхроне со src/lib/categories.ts (CategoryId)
+const VALID_CATEGORIES = new Set(['osnovy', 'tvoe', 'recon-net', 'osint-tools', 'web', 'access-vuln'])
+
 // Разбить массив верхнего уровня на объекты `{ ... }` (учитывая вложенность)
 function splitObjects(arrBlock) {
   if (!arrBlock) return []
@@ -88,7 +91,8 @@ for (const f of branchFiles) {
   const samples = splitObjects(samplesBlock).map((o) => ({ id: field(o, 'id') }))
   const nextStepsBlock = extractArrayBlock(src, 'nextSteps')
   const nextSteps = splitObjects(nextStepsBlock).map((o) => ({ branchId: field(o, 'branchId') }))
-  branches.push({ file: f, id, soon, commands, situations, playbooks, samples, nextSteps })
+  const category = field(src, 'category')
+  branches.push({ file: f, id, soon, category, commands, situations, playbooks, samples, nextSteps })
 }
 
 const branchIds = new Set(branches.map((b) => b.id))
@@ -111,7 +115,8 @@ for (const f of topicFiles) {
     const related = [...o.matchAll(/'([a-z0-9-]+\/[a-z0-9-]+)'/g)].map((m) => m[1])
     return { id: field(o, 'id'), q: field(o, 'q'), link, related }
   })
-  topics.push({ file: f, id, questions })
+  const category = field(src, 'category')
+  topics.push({ file: f, id, category, questions })
 }
 
 // --- 1. уникальность id ---
@@ -130,6 +135,26 @@ function checkDupes(items, label, keyFn = (x) => x.id) {
 checkDupes(branches.flatMap((b) => b.situations.map((s) => ({ ...s, file: b.file }))), 'situations')
 checkDupes(branches.flatMap((b) => b.playbooks.map((p) => ({ ...p, file: b.file }))), 'playbooks')
 checkDupes(branches, 'branches (id веток)')
+
+// --- 1b. у каждой ветки и темы есть валидная category ---
+for (const b of branches) {
+  if (!b.category) err(`${b.file}: отсутствует поле category`)
+  else if (!VALID_CATEGORIES.has(b.category)) err(`${b.file}: category «${b.category}» не входит в CATEGORIES (src/lib/categories.ts)`)
+}
+for (const t of topics) {
+  if (!t.category) err(`topics/${t.file}: отсутствует поле category`)
+  else if (!VALID_CATEGORIES.has(t.category)) err(`topics/${t.file}: category «${t.category}» не входит в CATEGORIES (src/lib/categories.ts)`)
+}
+
+// --- 1c. в самом реестре категорий нет повторяющихся id ---
+const categoriesSrc = readFileSync(join(ROOT, 'src/lib/categories.ts'), 'utf8')
+const categoryIdMatches = [...categoriesSrc.matchAll(/\{\s*id:\s*'([^']*)'/g)].map((m) => m[1])
+const categoryIdCounts = new Map()
+for (const id of categoryIdMatches) categoryIdCounts.set(id, (categoryIdCounts.get(id) ?? 0) + 1)
+for (const [id, count] of categoryIdCounts) {
+  if (count > 1) err(`src/lib/categories.ts: id «${id}» встречается ${count} раза в CATEGORIES`)
+}
+
 for (const t of topics) {
   checkDupes(t.questions.map((q) => ({ ...q, file: t.file })), `questions темы «${t.id}»`)
 }
