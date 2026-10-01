@@ -3,8 +3,9 @@ import { useMemo, useState } from 'react'
 import { branches } from '@/branches'
 import { PageTitle } from '@/components/Situations'
 import { Window } from '@/components/ui/card'
-import { useTarget } from '@/lib/target'
 import { explainLine } from '@/lib/explain'
+import { commandInfo, genericHints, ipFinding, stripAnsi } from '@/lib/generic'
+import { useTarget } from '@/lib/target'
 import { cn } from '@/lib/utils'
 import type { Finding } from '@/branches/types'
 
@@ -12,50 +13,75 @@ const MAX = 20000
 const ICON = { good: Check, warn: AlertTriangle, info: ArrowRight }
 const TONE = { good: 'text-primary', warn: 'text-[#f5c542]', info: 'text-muted-foreground' }
 
+// Что страница умеет разбирать — показываем, если формат не узнан
+const SUPPORTED = ['ifconfig / ip a / ipconfig', 'route / ip route (адрес роутера)', 'arp -a', 'nmap', 'lsof / ss (слушающие порты)', 'ping', 'curl -I (заголовки)', 'dig / whois / openssl (домен и сертификат)']
+
 // Вставляешь свой вывод — получаешь итог и пояснение к каждой строке. Всё считается в браузере.
 export function Explain({ onSituation }: { onSituation: (id: string) => void }) {
-  const [text, setText] = useState('')
+  const [raw, setRaw] = useState('')
   const { target, setTarget } = useTarget()
 
-  const ready = branches.filter((b) => !b.soon)
-  const hints = useMemo(() => ready.flatMap((b) => b.lineHints ?? []), [ready])
-  const examples = ready.flatMap((b) => (b.samples ?? []).filter((x) => x.explain))
+  const ready = useMemo(() => branches.filter((b) => !b.soon), [])
+  const hints = useMemo(() => [...genericHints, ...ready.flatMap((b) => b.lineHints ?? [])], [ready])
+  // примеры по группам (по веткам), чтобы не было «стены» кнопок
+  const groups = useMemo(
+    () => ready.map((b) => ({ title: b.title, items: (b.samples ?? []).filter((x) => x.explain) })).filter((g) => g.items.length),
+    [ready],
+  )
 
-  // общий разбор nmap подключён в нескольких ветках — убираем повторы по тексту
+  // чистим цветовые коды терминала; всё остальное (строки приглашения тоже) разбираем как есть
+  const text = useMemo(() => stripAnsi(raw), [raw])
+
   const findings: Finding[] = useMemo(() => {
     if (!text.trim()) return []
     const seen = new Set<string>()
-    return ready.flatMap((b) => b.analyze?.(text) ?? []).filter((f) => !seen.has(f.text) && !!seen.add(f.text))
+    const specific = ready.flatMap((b) => b.analyze?.(text) ?? [])
+    const all = [
+      ...commandInfo(text),
+      ...specific,
+      // универсальный разбор адресов — когда ничего более точного с кнопками «цель» не нашли
+      ...(specific.some((f) => f.actions) ? [] : ipFinding(text)),
+    ]
+    // общий разбор nmap подключён в нескольких ветках — убираем повторы по тексту
+    return all.filter((f) => !seen.has(f.text) && !!seen.add(f.text))
   }, [ready, text])
+
   const lines = useMemo(() => text.split('\n').slice(0, 300), [text])
 
   return (
     <div className="space-y-4">
-      <PageTitle title="Разобрать вывод" hint="Вставь вывод команды — ifconfig, nmap, lsof, curl, dig — объясню, что в нём важно, где твой IP и что делать дальше." />
+      <PageTitle title="Разобрать вывод" hint="Вставь вывод любой команды — объясню, что в нём важно, где твой IP и роутер и что делать дальше. Строку с приглашением терминала (❯) можно не стирать." />
 
       <Window title="вставь вывод" bodyClassName="space-y-3">
         <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value.slice(0, MAX))}
+          value={raw}
+          onChange={(e) => setRaw(e.target.value.slice(0, MAX))}
           rows={9}
           spellCheck={false}
           aria-label="Вывод для разбора"
-          placeholder={'Вставь сюда вывод команды, например ifconfig:\n\nen0: flags=8863<UP,BROADCAST…>\n\tinet 192.168.1.23 netmask 0xffffff00\n…'}
+          placeholder={'Вставь сюда вывод команды, например:\n\n❯ route -n get default\n    gateway: 192.168.1.1\n  interface: en0'}
           className="w-full resize-y border bg-black p-3 font-mono text-sm outline-none placeholder:text-muted-foreground/50 focus:border-primary"
         />
-        <div className="space-y-2">
+
+        <div className="space-y-3">
           <p className="label text-[10px] text-muted-foreground">или попробуй на примере</p>
-          <div className="flex flex-wrap gap-2">
-            {examples.map((x) => (
-              <button key={x.id} type="button" onClick={() => setText(x.text)} className="cursor-pointer border border-primary/50 px-3 py-1.5 text-sm text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
-                {x.label}
-              </button>
-            ))}
-          </div>
+          {groups.map((g) => (
+            <div key={g.title} className="space-y-1.5">
+              <p className="label text-[9px] text-muted-foreground/70">{g.title}</p>
+              <div className="flex flex-wrap gap-2">
+                {g.items.map((x) => (
+                  <button key={x.id} type="button" onClick={() => setRaw(x.text)} className="cursor-pointer border border-primary/50 px-3 py-1.5 text-sm text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
+                    {x.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
+
         <div className="flex flex-wrap items-center gap-2">
-          {text && (
-            <button type="button" onClick={() => setText('')} className="label h-9 cursor-pointer px-3 text-muted-foreground hover:text-foreground">
+          {raw && (
+            <button type="button" onClick={() => setRaw('')} className="label h-9 cursor-pointer px-3 text-muted-foreground hover:text-foreground">
               очистить
             </button>
           )}
@@ -67,7 +93,15 @@ export function Explain({ onSituation }: { onSituation: (id: string) => void }) 
         <>
           <Window title="итог">
             {findings.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Не узнал формат. Пока я понимаю вывод nmap — проверь, что вставлен весь текст.</p>
+              <div className="space-y-3 text-[15px] leading-relaxed">
+                <p>Этот формат я пока не узнал, но строки внизу разобрал по смыслу, где смог. Вот что я понимаю хорошо:</p>
+                <ul className="grid gap-1.5 text-sm text-muted-foreground sm:grid-cols-2">
+                  {SUPPORTED.map((s) => (
+                    <li key={s} className="flex gap-2"><span className="mt-2 size-1.5 shrink-0 bg-primary" />{s}</li>
+                  ))}
+                </ul>
+                <p className="text-sm text-muted-foreground">Проверь, что вставлен весь вывод. Нужна другая команда — скажи, добавим.</p>
+              </div>
             ) : (
               <ul className="space-y-3">
                 {findings.map((f, i) => {

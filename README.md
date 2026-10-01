@@ -1,33 +1,47 @@
-# React + TypeScript + Vite
+# pentest/cheats
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Справочник-шпаргалка по проверке безопасности **своих** устройств, сети, сайтов и проектов. Для новичков, на русском, простыми словами. Тёмный «глитч»-интерфейс, полный адаптив (десктоп и телефон).
 
-Currently, two official plugins are available:
+Приложение **ничего не сканирует и не выполняет**: терминал только показывает готовые примеры, а разбор вывода идёт в браузере, текст никуда не отправляется.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Запуск
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # проверка типов + сборка
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
-# kalli
+React + TypeScript + Vite, Tailwind CSS v4, компоненты в стиле shadcn/ui, терминал `react-xterm-shell` (xterm.js).
+
+## Что внутри
+
+| Раздел | Для чего |
+|---|---|
+| Вопросы и ответы | Вход для новичка: темы, вопросы простыми словами, готовые команды |
+| С чего начать | Что такое IP и цель, откуда взять свой IP, как поставить nmap |
+| Ветки (`src/branches/`) | Моя сеть и роутер, Мой сайт и домен, Сканирование портов (+ заглушки «скоро») |
+| Что делать, если… | Ситуация → короткий ответ → команда |
+| Сценарии по шагам | Цепочки команд с «готово, когда…» и примерами вывода |
+| Разобрать вывод | Вставь вывод команды — объяснение по строкам и итог |
+| Маршрут новичка, Избранное, Где тренироваться | Прогресс, любимые команды, легальные площадки |
+
+Поиск по всему: `⌘K` / `Ctrl+K` или `/`.
+
+## Как добавлять контент (оболочку менять не нужно)
+
+**Новая ветка** — файл в `src/branches/` с `export default` конфига (`BranchConfig` из `types.ts`):
+`id`, `title`, `icon`, `order`, `tool`, `guide` (markdown, разделы по `## `), `commands`, `terminalSample`, плюс по желанию
+`samples` (примеры вывода), `lineHints` (пояснения к строкам), `analyze` (итог разбора), `situations`, `playbooks`, `nextSteps`, `keywords`.
+
+**Новая тема вопросов** — файл в `src/topics/` с `export default` темы (`Topic` из `types.ts`): список вопросов с коротким ответом, командами, ссылкой и «читай дальше».
+
+В командах работают подстановки из поля цели: `<ip>`, `<domain>`, `<net>` (сеть из IP, например `192.168.1.0/24`).
+
+## Разбор вывода
+
+`src/lib/` — разборщики текста: `nmapHints` (nmap), `netinfo` (ifconfig, ipconfig, route, ping, lsof, ss, поиск устройств), `discover` (устройства и API в сети), `siteinfo` (заголовки, DNS, сертификат, whois), `generic` (строки приглашения терминала, команда по её началу, IP-адреса в любом тексте).
+
+## Правила
+
+Проверяй только свои устройства и системы или те, где есть письменное разрешение владельца. Чужое без разрешения сканировать нельзя.
