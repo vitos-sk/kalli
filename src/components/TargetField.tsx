@@ -1,15 +1,23 @@
-import { Crosshair, X } from 'lucide-react'
+import { ChevronRight, Copy, Crosshair, X } from 'lucide-react'
+import { useState } from 'react'
+import { notes } from '@/lib/store'
 import { useTarget } from '@/lib/target'
+import { cn } from '@/lib/utils'
 
-// Цель вводится один раз — и подставляется во все команды вместо <ip>
+// Цель вводится один раз — и подставляется во все команды вместо <ip>.
+// К каждой цели можно вести заметки (хранятся только в этом браузере).
 export function TargetField() {
   const { target, setTarget } = useTarget()
+  const [open, setOpen] = useState(false)
+  const all = notes.use()
+  const note = all[target] ?? ''
+
   return (
     <div className="mb-4 space-y-2 border bg-card p-3 sm:p-4">
       <label htmlFor="target" className="label flex items-center gap-2 text-primary">
         <Crosshair className="size-3.5" /> цель
       </label>
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex gap-2">
         <div className="flex min-w-0 flex-1 items-center border bg-black focus-within:border-primary">
           <input
             id="target"
@@ -28,13 +36,46 @@ export function TargetField() {
             </button>
           )}
         </div>
-        <button type="button" onClick={() => setTarget('scanme.nmap.org')} className="label h-10 cursor-pointer border border-primary/60 px-3 text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
-          scanme.nmap.org
+        <button type="button" onClick={() => setTarget('scanme.nmap.org')} className="label h-10 shrink-0 cursor-pointer border border-primary/60 px-3 text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
+          <span className="sm:hidden">scanme</span>
+          <span className="hidden sm:inline">scanme.nmap.org</span>
         </button>
       </div>
       <p className="text-xs text-muted-foreground">
-        Подставится в команды вместо <span className="font-mono text-primary">&lt;ip&gt;</span>. Сканируй только свои цели и учебные мишени.
+        Подставится в команды вместо <span className="font-mono text-primary">&lt;ip&gt;</span>. Сканируй только свои цели и учебные мишени.{' '}
+        <a href="#/start" className="whitespace-nowrap text-primary underline underline-offset-2">Где взять IP?</a>
       </p>
+
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="label flex cursor-pointer items-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground"
+      >
+        <ChevronRight className={cn('size-3.5 text-primary transition-transform', open && 'rotate-90')} />
+        заметки{target ? ` · ${target}` : ''}
+        {note && <span className="size-1.5 bg-primary" aria-label="есть заметка" />}
+      </button>
+      {open && (
+        <div className="space-y-2">
+          <textarea
+            value={note}
+            onChange={(e) => notes.set(target, e.target.value)}
+            maxLength={5000}
+            rows={5}
+            placeholder="Что нашёл: открытые порты, версии, идеи на потом…"
+            className="w-full resize-y border bg-black p-3 font-mono text-sm outline-none placeholder:text-muted-foreground/60 focus:border-primary"
+          />
+          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+            <span>{target ? 'Заметка привязана к этой цели.' : 'Общая заметка (цель не указана).'} Хранится только в браузере.</span>
+            {note && (
+              <button type="button" onClick={() => navigator.clipboard?.writeText(note)} className="label flex shrink-0 cursor-pointer items-center gap-1.5 text-[10px] text-primary hover:underline">
+                <Copy className="size-3" /> копировать
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,5 +1,7 @@
-import { PanelLeftClose, PanelLeftOpen, ShieldHalf } from 'lucide-react'
+import { Check, PanelLeftClose, PanelLeftOpen, ShieldHalf } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { learned } from '@/lib/store'
+import { SPECIAL } from '@/lib/special'
 import { cn } from '@/lib/utils'
 import type { BranchConfig } from '@/branches/types'
 
@@ -14,6 +16,7 @@ interface Props {
 
 // Список веток. Используется и в десктопном сайдбаре, и в мобильной шторке.
 export function SidebarNav({ branches, activeId, onSelect, collapsed = false, onToggle }: Props) {
+  const done = learned.use()
   return (
     <div className="flex h-full flex-col">
       <div className={cn('flex h-14 items-center gap-2.5 px-4', collapsed && 'justify-center px-0')}>
@@ -47,8 +50,32 @@ export function SidebarNav({ branches, activeId, onSelect, collapsed = false, on
                 <>
                   <span className="min-w-0 flex-1 truncate">{b.title}</span>
                   {b.soon && <Badge>скоро</Badge>}
+                  {done.includes(b.id) && <Check className="size-4 text-primary" aria-label="изучено" />}
                 </>
               )}
+            </button>
+          )
+        })}
+
+        <div className="my-2 border-t" />
+        {SPECIAL.map((p) => {
+          const Icon = p.icon
+          const active = p.id === activeId
+          return (
+            <button
+              key={p.id}
+              type="button"
+              title={collapsed ? p.title : undefined}
+              aria-current={active ? 'page' : undefined}
+              onClick={() => onSelect(p.id)}
+              className={cn(
+                'label flex w-full cursor-pointer items-center gap-3 border-l-2 border-transparent px-3 py-3 text-left text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
+                collapsed && 'justify-center px-0',
+                active && 'border-primary bg-accent text-primary hover:text-primary',
+              )}
+            >
+              <Icon className="size-4 shrink-0" />
+              {!collapsed && <span className="min-w-0 flex-1 truncate">{p.title}</span>}
             </button>
           )
         })}

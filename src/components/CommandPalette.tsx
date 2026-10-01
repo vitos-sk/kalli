@@ -1,11 +1,11 @@
-import { BookOpen, CornerDownLeft, FolderOpen, Search, SquareTerminal } from 'lucide-react'
+import { BookOpen, CornerDownLeft, FolderOpen, LifeBuoy, ListChecks, Search, SquareTerminal } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { branches } from '@/branches'
 import { buildIndex, search, type Hit } from '@/lib/search'
 import { cn } from '@/lib/utils'
 
-const ICON = { branch: FolderOpen, guide: BookOpen, command: SquareTerminal }
-const KIND = { branch: 'ветка', guide: 'гайд', command: 'команда' }
+const ICON = { branch: FolderOpen, guide: BookOpen, command: SquareTerminal, situation: LifeBuoy, page: FolderOpen, playbook: ListChecks }
+const KIND = { branch: 'ветка', guide: 'гайд', command: 'команда', situation: 'ситуация', page: 'раздел', playbook: 'сценарий' }
 
 // Окно поиска (⌘K / Ctrl+K / «/»): по веткам, гайдам и командам
 export function CommandPalette({ onClose, onPick }: { onClose: () => void; onPick: (h: Hit) => void }) {
@@ -15,15 +15,18 @@ export function CommandPalette({ onClose, onPick }: { onClose: () => void; onPic
   const results = useMemo(() => search(index, q), [index, q])
   const list = useRef<HTMLUListElement>(null)
 
-  useEffect(() => setActive(0), [q])
   useEffect(() => {
     list.current?.children[active]?.scrollIntoView({ block: 'nearest' })
   }, [active])
 
   const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, results.length - 1)))
-    else if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)))
-    else if (e.key === 'Enter' && results[active]) onPick(results[active])
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActive((a) => Math.min(a + 1, results.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActive((a) => Math.max(a - 1, 0))
+    } else if (e.key === 'Enter' && results[active]) onPick(results[active])
     else if (e.key === 'Escape') onClose()
   }
 
@@ -39,7 +42,10 @@ export function CommandPalette({ onClose, onPick }: { onClose: () => void; onPic
           <input
             autoFocus
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={(e) => {
+              setQ(e.target.value)
+              setActive(0) // новый запрос — выбор снова на первом
+            }}
             onKeyDown={onKey}
             placeholder="хост не отвечает, версии, -Pn…"
             className="h-12 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground/60"
@@ -50,7 +56,7 @@ export function CommandPalette({ onClose, onPick }: { onClose: () => void; onPic
           {results.map((h, i) => {
             const Icon = ICON[h.kind]
             return (
-              <li key={`${h.kind}-${h.branch.id}-${h.title}-${i}`}>
+              <li key={`${h.kind}-${h.to.id}-${h.title}-${i}`}>
                 <button
                   type="button"
                   onMouseEnter={() => setActive(i)}

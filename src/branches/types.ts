@@ -29,12 +29,54 @@ export interface BranchCommand {
   cmd: string
   note: string
   flags?: CommandFlag[]
+  /** Живые слова для поиска именно по этой команде */
+  keywords?: string[]
 }
 
 // Подсказка к строке вывода терминала: по hover (десктоп) или тапу (телефон)
 export interface LineHint {
   pattern: RegExp
   text: string | ((m: RegExpMatchArray) => string)
+}
+
+// «Что делать, если…»: ситуация → короткий ответ → готовые команды
+export interface Situation {
+  id: string
+  title: string
+  answer: string
+  /** cmd из commands этой же ветки */
+  cmds: string[]
+  keywords?: string[]
+}
+
+// Шаг «что дальше» внизу гайда; branchId — куда перейти
+export interface NextStep {
+  text: string
+  branchId?: string
+}
+
+// Вывод анализа вставленного текста
+export interface Finding {
+  text: string
+  tone?: 'good' | 'warn' | 'info'
+  /** id ситуации «что делать, если…» для перехода */
+  situationId?: string
+}
+
+// Сценарий «по шагам»: цепочка команд с пояснением на каждом шаге
+export interface PlaybookStep {
+  title: string
+  text: string
+  cmd?: string
+  /** id примера из samples — кнопка «что увидишь» напечатает его в терминал */
+  sampleId?: string
+}
+
+export interface Playbook {
+  id: string
+  title: string
+  intro: string
+  steps: PlaybookStep[]
 }
 
 // Конфиг одной ветки пентеста. Новая ветка = новый файл в src/branches/
@@ -57,6 +99,11 @@ export interface BranchConfig {
   keywords?: string[]
   /** Разбор строк терминала */
   lineHints?: LineHint[]
+  situations?: Situation[]
+  playbooks?: Playbook[]
+  /** Разбор вставленного пользователем вывода: пустой массив — «не мой формат» */
+  analyze?: (text: string) => Finding[]
+  nextSteps?: NextStep[]
   /** Доп. расклады вывода (первый — тот же terminalSample) */
   samples?: Sample[]
 }

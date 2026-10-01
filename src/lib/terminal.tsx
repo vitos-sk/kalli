@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useXTerm, type XTermHandle } from 'react-xterm-shell'
 import type { LineHint } from '@/branches/types'
+import { explainLine } from '@/lib/explain'
 
 const FONT = '"JetBrains Mono Variable", ui-monospace, monospace'
 // полный сброс экрана и прокрутки через escape-последовательность (reset() падает в xterm)
@@ -113,13 +114,7 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
     hints.current = h
   }, [])
 
-  const explain = useCallback((line: string) => {
-    for (const h of hints.current) {
-      const m = line.match(h.pattern)
-      if (m) return typeof h.text === 'function' ? h.text(m) : h.text
-    }
-    return null
-  }, [])
+  const explain = useCallback((line: string) => explainLine(hints.current, line), [])
 
   useEffect(() => {
     // веб-шрифт мог догрузиться после первого замера ячеек — пересчитываем

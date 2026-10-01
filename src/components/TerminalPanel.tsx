@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { XTerm } from 'react-xterm-shell'
 import { useShellTerminal } from '@/lib/terminal'
 
-const HINT_H = 64
+const HINT_H = 56
 const DEFAULT_HINT = 'Запусти пример, потом наведи на строку (на телефоне — тапни): объясню, что она значит.'
 
 // Сворачиваемая панель снизу. xterm всегда смонтирован: содержимое не теряется.
@@ -13,7 +13,7 @@ export function TerminalPanel() {
   const [hint, setHint] = useState<{ top: number; h: number; text: string } | null>(null)
 
   // на телефоне терминал ниже, чтобы не съедать экран
-  const height = window.innerWidth < 768 ? 170 : 240
+  const height = window.innerWidth < 768 ? 150 : 200
 
   // после раскрытия пересчитываем размер сетки
   useEffect(() => {
@@ -42,7 +42,7 @@ export function TerminalPanel() {
   }
 
   return (
-    <section aria-label="Терминал" className="shrink-0 border-t bg-black pb-[env(safe-area-inset-bottom)]">
+    <section aria-label="Терминал" className="shrink-0 border-t bg-black">
       <div className="flex h-10 items-center pr-2">
         <button
           type="button"
