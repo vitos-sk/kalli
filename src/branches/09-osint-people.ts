@@ -101,7 +101,7 @@ const config: BranchConfig = {
 1. **theHarvester — какие у организации email и поддомены торчат в открытом доступе?** Собирает со поисковиков, сертификатов и других открытых источников.
 2. **Holehe — на каких сервисах зарегистрирована эта почта?** Проверяет почту по механизму «восстановление пароля» десятков сайтов — если форма говорит «письмо отправлено», аккаунт существует.
 3. **Sherlock / Maigret — какие соцсети привязаны к этому нику?** Проверяет один никнейм на сотнях площадок разом.
-4. **Blackbird — то же самое, но быстрее и шире.** Проверяет никнейм асинхронно сразу на 600+ сайтах за секунды и умеет искать ещё и по email; хорошая вторая проверка, если Sherlock/Maigret не нашли нужный аккаунт — охват сайтов у инструментов частично не совпадает.
+4. **Blackbird — то же самое, но шире.** Проверяет никнейм асинхронно сразу на 600+ сайтах и умеет искать ещё и по email; хорошая вторая проверка, если Sherlock/Maigret не нашли нужный аккаунт — охват сайтов у инструментов частично не совпадает.
 5. **Have I Been Pwned — утекал ли этот email или пароль в известных утечках?** Официальная база собранных публичных утечек, с API для автоматической проверки.
 
 ## Как читать вывод
@@ -155,9 +155,9 @@ const config: BranchConfig = {
     },
     {
       label: 'Быстрый поиск по нику на 600+ сайтах (Blackbird)',
-      cmd: 'python blackbird.py -u test_user --show-all',
-      note: 'Blackbird — более новый и быстрый инструмент: проверяет никнейм асинхронно сразу на 600+ сайтах за секунды (а не последовательно, как Sherlock) и дополнительно умеет искать по email. Ставится клонированием репозитория: `git clone https://github.com/p1ngul1n0/blackbird && cd blackbird && pip install -r requirements.txt`.',
-      see: '`[FOUND]` — аккаунт существует на сайте, `[NOT FOUND]` — нет. Флаг `--show-all` печатает и не найденные тоже, без него — только найденные.',
+      cmd: 'python blackbird.py -u test_user',
+      note: 'Blackbird — более новый инструмент: проверяет никнейм асинхронно сразу на 600+ сайтах и дополнительно умеет искать по email. Ставится клонированием репозитория: `git clone https://github.com/p1ngul1n0/blackbird && cd blackbird && pip install -r requirements.txt`.',
+      see: '`[FOUND]` — аккаунт существует на сайте, `[NOT FOUND]` — нет. По умолчанию выводятся оба статуса.',
       next: 'Сравни результат со списком от Sherlock/Maigret — охват сайтов у инструментов разный, какой-то аккаунт может найтись только здесь.',
       keywords: ['blackbird', 'быстрый поиск по нику', 'async osint'],
     },
@@ -245,7 +245,7 @@ const config: BranchConfig = {
   samples: [
     { id: 'holehe', label: 'Holehe: где зарегистрирована почта', cmd: 'holehe test@example.com', text: HOLEHE_RESULT, explain: true },
     { id: 'sherlock', label: 'Sherlock: найденные профили', cmd: 'sherlock test_user', text: SHERLOCK_RESULT, explain: true },
-    { id: 'blackbird', label: 'Blackbird: найденные аккаунты', cmd: 'python blackbird.py -u test_user --show-all', text: BLACKBIRD_RESULT, explain: true },
+    { id: 'blackbird', label: 'Blackbird: найденные аккаунты', cmd: 'python blackbird.py -u test_user', text: BLACKBIRD_RESULT, explain: true },
     { id: 'harvester', label: 'theHarvester: email и поддомены', cmd: 'theHarvester -d example.com -b all', text: HARVESTER_RESULT, explain: true },
     { id: 'hibp-leaked', label: 'HIBP: есть утечки', cmd: 'curl -s "https://haveibeenpwned.com/api/v3/breachedaccount/test@example.com"', text: HIBP_LEAKED, explain: true },
     { id: 'hibp-clean', label: 'HIBP: чисто', cmd: 'curl -s "https://haveibeenpwned.com/api/v3/breachedaccount/test@example.com"', text: HIBP_CLEAN, explain: true },
