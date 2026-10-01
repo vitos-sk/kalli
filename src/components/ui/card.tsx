@@ -18,7 +18,7 @@ function Window({
   children: React.ReactNode
 }) {
   return (
-    <section className={cn('border bg-card text-card-foreground', className)}>
+    <section className={cn('min-w-0 border bg-card text-card-foreground', className)}>
       <header className="label flex h-9 items-center justify-between border-b px-3 text-foreground/90">
         <span className="truncate">{title}</span>
         <span aria-hidden className="grid size-4 shrink-0 place-items-center border border-primary/60 text-[10px] leading-none text-primary">×</span>

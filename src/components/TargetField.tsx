@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 // Цель вводится один раз — и подставляется во все команды вместо <ip>.
 // К каждой цели можно вести заметки (хранятся только в этом браузере).
 export function TargetField() {
-  const { target, setTarget } = useTarget()
+  const { target, setTarget, port, setPort } = useTarget()
   const [open, setOpen] = useState(false)
   const all = notes.use()
   const note = all[target] ?? ''
@@ -45,9 +45,31 @@ export function TargetField() {
           </button>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">
-        Подставится в команды вместо <span className="font-mono text-primary">&lt;ip&gt;</span>, <span className="font-mono text-primary">&lt;domain&gt;</span> и <span className="font-mono text-primary">&lt;net&gt;</span> (сеть из твоего IP). Сканируй только свои цели и учебные мишени.{' '}
-        <a href="#/start" className="whitespace-nowrap text-primary underline underline-offset-2">Где взять IP?</a>
+      <div className="space-y-2 border-t pt-3">
+        <label htmlFor="port" className="label text-[10px] text-muted-foreground">порт — если в команде есть <span className="text-primary">&lt;port&gt;</span></label>
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            id="port"
+            value={port}
+            onChange={(e) => setPort(e.target.value)}
+            placeholder="например 3000"
+            inputMode="numeric"
+            className="h-9 w-36 border bg-black px-3 font-mono text-sm outline-none placeholder:text-muted-foreground/60 focus:border-primary"
+          />
+          {['3000', '5173', '8080'].map((v) => (
+            <button key={v} type="button" onClick={() => setPort(v)} className={cn('label h-9 cursor-pointer border px-2.5 text-[10px] transition-colors', port === v ? 'border-primary bg-primary text-primary-foreground' : 'border-primary/50 text-primary hover:bg-primary/10')}>
+              {v}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        То, что ты впишешь, подставится в команды вместо заглушек:{' '}
+        {(['ip', 'domain', 'net', 'port'] as const).map((t, i) => (
+          <span key={t}>{i > 0 && ', '}<a href={`#/values/${t}`} className="font-mono text-primary underline underline-offset-2">&lt;{t}&gt;</a></span>
+        ))}
+        . Не знаешь, что вписать? <a href="#/values" className="whitespace-nowrap text-primary underline underline-offset-2">Где взять эти значения →</a> Сканируй только свои цели и учебные мишени.
       </p>
 
       <button

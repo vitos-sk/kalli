@@ -23,7 +23,7 @@ export function Favorites() {
       ) : (
         <>
           <TargetField />
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {items.map(({ b, c }) => (
               <CommandCard key={favKey(b.id, c.cmd)} item={c} branchId={b.id} />
             ))}

@@ -1,6 +1,7 @@
 import { ChevronRight } from 'lucide-react'
 import { branches } from '@/branches'
 import { CommandCard } from '@/components/Commands'
+import { Md } from '@/components/Md'
 import { TargetField } from '@/components/TargetField'
 import { cn } from '@/lib/utils'
 
@@ -31,7 +32,7 @@ export function Situations({ openId, onOpen }: { openId?: string; onOpen: (id?: 
               </button>
               {open && (
                 <div className="space-y-4 border-t p-4">
-                  <p className="leading-relaxed text-foreground/90">{s.answer}</p>
+                  <div className="space-y-3 text-[15px] leading-relaxed text-foreground/90"><Md>{s.answer}</Md></div>
                   {s.cmds.map((cmd) => {
                     const item = b.commands.find((c) => c.cmd === cmd)
                     return item ? <CommandCard key={cmd} item={item} branchId={b.id} /> : null

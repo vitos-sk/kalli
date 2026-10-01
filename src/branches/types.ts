@@ -31,6 +31,10 @@ export interface BranchCommand {
   cmd: string
   note: string
   flags?: CommandFlag[]
+  /** Что человек увидит в ответе — простыми словами */
+  see?: string
+  /** Что делать дальше */
+  next?: string
   /** Живые слова для поиска именно по этой команде */
   keywords?: string[]
 }

@@ -32,7 +32,7 @@ const topic: Topic = {
 3. **Версия службы** — какая программа там работает.
 
 Телефоны часто показываются без фирмы: у них «приватный» MAC.`,
-      cmds: ['curl -sI http://<ip>:8080', 'nmap -sV -F <ip>'],
+      cmds: ['curl -sI http://<ip>:<port>', 'nmap -sV -F <ip>'],
       link: { label: 'Разобрать вывод', to: { id: 'explain' } },
     },
     {

@@ -56,8 +56,8 @@ const topic: Topic = {
       q: 'Порт занят — кто его держит?',
       level: 'next',
       keywords: ['port already in use', 'порт занят', 'address already in use'],
-      a: `Подставь номер порта вместо \`3000\`. В колонке \`COMMAND\` — программа, в \`PID\` — её номер. Закрой её как обычную программу.`,
-      cmds: ['lsof -i :3000'],
+      a: `Впиши номер порта в поле цели (или нажми на заглушку \`<port>\` — расскажу, где его взять). В колонке \`COMMAND\` — программа, в \`PID\` — её номер. Закрой её как обычную программу.`,
+      cmds: ['lsof -i :<port>'],
     },
     {
       id: 'mac-firewall',
@@ -76,8 +76,8 @@ const topic: Topic = {
       keywords: ['свои api', 'эндпоинты', 'health', 'docs', 'openapi'],
       a: `Сначала найди, где в сети живут сайты и API. Потом пройдись по типовым путям своего API: \`200\` — отвечает без входа, \`401\` и \`403\` — защищено.
 
-Впиши свой IP в поле цели. Порт \`3000\` замени на свой.`,
-      cmds: ['nmap -p 80,443,3000,5000,8000,8080,8443 --open <net>', 'for p in /health /docs /openapi.json /admin; do echo "== $p"; curl -s -o /dev/null -w "%{http_code}\\n" http://<ip>:3000$p; done'],
+Впиши свой IP и порт своего проекта в поле цели.`,
+      cmds: ['nmap -p 80,443,3000,5000,8000,8080,8443 --open <net>', 'for p in /health /docs /openapi.json /admin; do echo "== $p"; curl -s -o /dev/null -w "%{http_code}\\n" http://<ip>:<port>$p; done'],
       link: { label: 'Пошаговая тренировка', to: { id: 'playbooks', sub: 'inventory' } },
     },
   ],

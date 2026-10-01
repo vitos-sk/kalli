@@ -11,6 +11,7 @@ import { QuestionsPage } from '@/components/QuestionsPage'
 import { StartPage } from '@/components/StartPage'
 import { Playbooks } from '@/components/Playbooks'
 import { RoutePage } from '@/components/RoutePage'
+import { ValuesPage } from '@/components/ValuesPage'
 import { Situations } from '@/components/Situations'
 import { SidebarNav } from '@/components/Sidebar'
 import { TerminalPanel } from '@/components/TerminalPanel'
@@ -140,6 +141,7 @@ function Shell() {
         <main className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-8 md:py-10">
             {route.id === 'questions' && <QuestionsPage topicId={route.sub} qid={route.sub2} go={go} />}
+            {route.id === 'values' && <ValuesPage openToken={route.sub} go={go} />}
             {route.id === 'start' && <StartPage onGo={select} />}
             {route.id === 'situations' && <Situations openId={route.sub} onOpen={(id) => go('situations', id)} />}
             {route.id === 'playbooks' && <Playbooks openId={route.sub} onOpen={(id) => go('playbooks', id)} />}
