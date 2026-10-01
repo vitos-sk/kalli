@@ -196,6 +196,7 @@ const config: BranchConfig = {
   nextSteps: [
     { text: 'Нашёл живые поддомены → просканируй их порты', branchId: 'port-scanning' },
     { text: 'Это сайт, с которым работаешь → проверь домен и сертификат', branchId: 'own-site' },
+    { text: 'Нашёл email сотрудников → проверь их на утечки и привязанные аккаунты', branchId: 'osint-people' },
   ],
 
   terminalSample: CRTSH,
