@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { SPECIAL, type SpecialGroup } from '@/lib/special'
 import { cn } from '@/lib/utils'
 import type { BranchConfig } from '@/branches/types'
+import { CATEGORIES } from '@/lib/categories'
 
 interface Props {
   branches: BranchConfig[]
@@ -92,21 +93,31 @@ export function SidebarNav({ branches, activeId, onSelect, collapsed = false, on
 
         {!collapsed && <GroupLabel>справочник</GroupLabel>}
         {collapsed && <div className="my-3 border-t" />}
-        <div className="space-y-1">
-          {branches.map((b) => (
-            <NavItem
-              key={b.id}
-              id={b.id}
-              title={b.title}
-              Icon={b.icon}
-              active={b.id === activeId}
-              collapsed={collapsed}
-              disabled={b.soon}
-              onSelect={onSelect}
-              right={b.soon && <Badge>скоро</Badge>}
-            />
-          ))}
-        </div>
+        {CATEGORIES.map((cat) => {
+          const items = branches.filter((b) => b.category === cat.id)
+          if (!items.length) return null
+          return (
+            <div key={cat.id}>
+              {!collapsed && <p className="label mb-1 mt-3 px-3 text-[9px] text-muted-foreground/50 first:mt-0">{cat.title}</p>}
+              {collapsed && <div className="my-2 border-t border-dashed" />}
+              <div className="space-y-1">
+                {items.map((b) => (
+                  <NavItem
+                    key={b.id}
+                    id={b.id}
+                    title={b.title}
+                    Icon={b.icon}
+                    active={b.id === activeId}
+                    collapsed={collapsed}
+                    disabled={b.soon}
+                    onSelect={onSelect}
+                    right={b.soon && <Badge>скоро</Badge>}
+                  />
+                ))}
+              </div>
+            </div>
+          )
+        })}
 
         {groups.map((g) => {
           const label = GROUP_LABEL[g]
