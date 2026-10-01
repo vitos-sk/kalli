@@ -211,6 +211,7 @@ const config: BranchConfig = {
     { text: 'Увидел версию сервера или CMS — проверь, нет ли для неё известной уязвимости', branchId: 'exploit' },
     { text: 'Ещё не проверял домен и сертификат целиком', branchId: 'own-site' },
     { text: 'Нашёл .env или другую утечку в файлах сайта → проверь, не в твоём ли репозитории она изначально', branchId: 'secrets' },
+    { text: 'Базовая проверка пройдена → углубись профессиональными инструментами (Nikto, ffuf, sqlmap, Burp/ZAP)', branchId: 'web-advanced' },
   ],
 
   terminalSample: PROBE,

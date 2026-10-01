@@ -14,13 +14,22 @@ https://example.com/backup.sql
 https://example.com/.env
 https://example.com/wp-content/uploads/2019/report.pdf`
 
+const AMASS_RESULT = `api.example.com
+blog.example.com
+dev.example.com
+mail.example.com
+shop.example.com
+staging.example.com
+vpn.example.com
+www.example.com`
+
 const config: BranchConfig = {
   id: 'recon',
   title: 'Разведка (OSINT)',
   icon: Search,
   order: 7,
   tool: SampleTool,
-  keywords: ['osint', 'разведка', 'поддомены', 'subdomain', 'crt.sh', 'wayback', 'archive', 'гугл дорки', 'google dork', 'теневой ит', 'shadow it', 'утечка', 'whois', 'dns', 'что обо мне известно'],
+  keywords: ['osint', 'разведка', 'поддомены', 'subdomain', 'crt.sh', 'wayback', 'archive', 'гугл дорки', 'google dork', 'теневой ит', 'shadow it', 'утечка', 'whois', 'dns', 'что обо мне известно', 'amass', 'subfinder', 'глубокая разведка'],
   lineHints: [...reconHints, ...siteHints],
   analyze: (t) => [...reconAnalyze(t), ...siteAnalyze(t)],
 
@@ -111,6 +120,23 @@ const config: BranchConfig = {
       keywords: ['ns', 'mx', 'кто обслуживает домен'],
     },
     {
+      label: 'Глубокая разведка поддоменов (Amass)',
+      cmd: 'amass enum -passive -d <domain>',
+      note: 'Комбинирует десятки источников разом (сертификаты, поисковики, публичные базы DNS, архивы) — находит заметно больше, чем один crt.sh. Профессиональный инструмент разведки, тот же, что в реальных bug bounty отчётах.',
+      see: 'Список поддоменов, один на строку — обычно заметно длиннее, чем через один crt.sh.',
+      next: 'Сравни со списком из crt.sh — новые имена отсюда тоже стоит проверить на «живость».',
+      keywords: ['amass', 'глубокая разведка', 'enum поддоменов'],
+      flags: [{ flag: '-passive', text: 'Только пассивные источники (без прямых запросов к самой цели) — быстрее и незаметнее.' }],
+    },
+    {
+      label: 'Глубокая разведка поддоменов (Subfinder)',
+      cmd: 'subfinder -d <domain> -silent',
+      note: 'Более лёгкая и быстрая альтернатива Amass — тоже собирает поддомены из множества пассивных источников одним запросом.',
+      see: 'Список поддоменов, один на строку.',
+      keywords: ['subfinder', 'быстрая разведка поддоменов'],
+      flags: [{ flag: '-silent', text: 'Не печатать баннер и служебные сообщения — только сами поддомены, удобно для сохранения в файл.' }],
+    },
+    {
       label: 'Поиск по сайту через Google (просто запрос)',
       cmd: 'site:<domain> (filetype:pdf OR filetype:xlsx OR filetype:env OR intitle:"index of")',
       note: 'Это не терминальная команда, а поисковый запрос — вставь его в Google. `site:` ограничивает поиск одним доменом, `filetype:` ищет конкретный тип файлов, `intitle:"index of"` находит открытые списки файлов на сервере (когда забыли закрыть листинг папки).',
@@ -176,6 +202,7 @@ const config: BranchConfig = {
   samples: [
     { id: 'crtsh', label: 'Поддомены (crt.sh)', cmd: 'curl -s "https://crt.sh/?q=%.<domain>&output=json"', text: CRTSH, explain: true },
     { id: 'wayback', label: 'Архив интернета (Wayback)', cmd: 'curl -s "http://web.archive.org/cdx/search/cdx?url=<domain>/*&output=text&fl=original&collapse=urlkey"', text: WAYBACK, explain: true },
+    { id: 'amass', label: 'Amass: глубокая разведка', cmd: 'amass enum -passive -d <domain>', text: AMASS_RESULT, explain: true },
   ],
 }
 

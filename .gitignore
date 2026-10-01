@@ -25,3 +25,5 @@ dist-ssr
 
 # Скриншоты из корня
 /*.png
+.vercel
+.env*

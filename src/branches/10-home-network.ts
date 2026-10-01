@@ -332,6 +332,7 @@ const config: BranchConfig = {
   nextSteps: [
     { text: 'Нашёл открытые двери у роутера или сервера → разберись подробнее', branchId: 'port-scanning' },
     { text: 'Есть сайт или домен, с которым работаешь → проверь его снаружи', branchId: 'own-site' },
+    { text: 'Хочешь проверить трафик своей сети и стойкость пароля Wi-Fi глубже', branchId: 'network-tools' },
   ],
 
   terminalSample: IFCONFIG,
