@@ -5,6 +5,7 @@ import { BranchPage } from '@/components/BranchPage'
 import { CommandPalette } from '@/components/CommandPalette'
 import { Explain } from '@/components/Explain'
 import { Breadcrumb, type Crumb } from '@/components/Breadcrumb'
+import { LockGate } from '@/components/LockGate'
 import { topics as topicsRef } from '@/topics'
 import { Favorites } from '@/components/Favorites'
 import { Labs } from '@/components/Labs'
@@ -221,10 +222,12 @@ function Shell() {
 
 export default function App() {
   return (
-    <TargetProvider>
-      <TerminalProvider>
-        <Shell />
-      </TerminalProvider>
-    </TargetProvider>
+    <LockGate>
+      <TargetProvider>
+        <TerminalProvider>
+          <Shell />
+        </TerminalProvider>
+      </TargetProvider>
+    </LockGate>
   )
 }
