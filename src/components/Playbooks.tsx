@@ -4,6 +4,7 @@ import { CommandLine } from '@/components/Commands'
 import { PageTitle } from '@/components/Situations'
 import { TargetField } from '@/components/TargetField'
 import { playbookDone } from '@/lib/store'
+import { tokensIn } from '@/lib/target'
 import { useShellTerminal } from '@/lib/terminal'
 import { cn } from '@/lib/utils'
 
@@ -51,7 +52,7 @@ export function Playbooks({ openId, onOpen }: { openId?: string; onOpen: (id?: s
     <div>
       <button type="button" onClick={() => onOpen(undefined)} className="label mb-3 cursor-pointer text-[10px] text-muted-foreground hover:text-primary">← все сценарии</button>
       <PageTitle title={pb.title} hint={pb.intro} />
-      <TargetField />
+      {tokensIn(pb.steps.map((st) => st.cmd)).length > 0 && <TargetField tokens={tokensIn(pb.steps.map((st) => st.cmd))} />}
 
       <ol className="space-y-3">
         {pb.steps.map((st, i) => {

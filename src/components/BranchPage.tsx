@@ -8,7 +8,7 @@ import { learned } from '@/lib/store'
 import { cn } from '@/lib/utils'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useShellTerminal } from '@/lib/terminal'
-import { hasPlaceholder } from '@/lib/target'
+import { tokensIn } from '@/lib/target'
 import type { BranchConfig, TabId } from '@/branches/types'
 
 interface Props {
@@ -27,7 +27,7 @@ export function BranchPage({ branch, tab, onTab, onGo, flashCmd }: Props) {
   const asTab = (['tool', 'guide', 'commands'] as string[]).includes(tab ?? '') ? (tab as TabId) : undefined
   const current: TabId = asTab && (asTab !== 'tool' || Tool) ? asTab : Tool ? 'tool' : 'guide'
   const isDone = learned.use().includes(branch.id)
-  const needsTarget = branch.commands.some((c) => hasPlaceholder(c.cmd))
+  const tokens = tokensIn(branch.commands.map((c) => c.cmd))
 
   return (
     <article>
@@ -44,8 +44,6 @@ export function BranchPage({ branch, tab, onTab, onGo, flashCmd }: Props) {
       >
         <Check className="size-3.5" /> {isDone ? 'изучено' : 'отметить изученным'}
       </button>
-
-      {needsTarget && <TargetField />}
 
       <Tabs value={current} onValueChange={(v) => onTab(v as TabId)}>
         <TabsList>
@@ -85,7 +83,10 @@ export function BranchPage({ branch, tab, onTab, onGo, flashCmd }: Props) {
             </Window>
           )}
         </TabsContent>
-        <TabsContent value="commands"><Commands items={branch.commands} branchId={branch.id} intro={branch.commandsIntro} flashCmd={flashCmd} /></TabsContent>
+        <TabsContent value="commands">
+          {tokens.length > 0 && <TargetField tokens={tokens} />}
+          <Commands items={branch.commands} branchId={branch.id} intro={branch.commandsIntro} flashCmd={flashCmd} />
+        </TabsContent>
       </Tabs>
     </article>
   )

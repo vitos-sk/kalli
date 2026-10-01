@@ -4,6 +4,7 @@ import { branches } from '@/branches'
 import { CommandCard } from '@/components/Commands'
 import { Md } from '@/components/Md'
 import { TargetField } from '@/components/TargetField'
+import { tokensIn } from '@/lib/target'
 import { cn } from '@/lib/utils'
 
 // «Что делать, если…»: человек приходит с проблемой, а не с названием инструмента
@@ -18,7 +19,6 @@ export function Situations({ openId, onOpen }: { openId?: string; onOpen: (id?: 
   return (
     <div>
       <PageTitle title="Что делать, если…" hint="Выбери ситуацию — получишь короткий ответ и готовую команду." />
-      <TargetField />
       <ul className="space-y-2">
         {items.map(({ b, s }) => {
           const open = s.id === openId
@@ -39,6 +39,10 @@ export function Situations({ openId, onOpen }: { openId?: string; onOpen: (id?: 
               {open && (
                 <div className="space-y-4 border-t p-4">
                   <div className="space-y-3 text-[15px] leading-relaxed text-foreground/90"><Md>{s.answer}</Md></div>
+                  {(() => {
+                    const tk = tokensIn(s.cmds)
+                    return tk.length > 0 ? <TargetField tokens={tk} /> : null
+                  })()}
                   {s.cmds.map((cmd) => {
                     const item = b.commands.find((c) => c.cmd === cmd)
                     return item ? <CommandCard key={cmd} item={item} branchId={b.id} /> : null

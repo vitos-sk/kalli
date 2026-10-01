@@ -4,6 +4,7 @@ import { CommandCard } from '@/components/Commands'
 import { PageTitle } from '@/components/Situations'
 import { TargetField } from '@/components/TargetField'
 import { favKey, favorites } from '@/lib/store'
+import { tokensIn } from '@/lib/target'
 
 // Команды, отмеченные звездой — быстрый доступ без поиска
 export function Favorites() {
@@ -22,7 +23,7 @@ export function Favorites() {
         </div>
       ) : (
         <>
-          <TargetField />
+          {tokensIn(items.map(({ c }) => c.cmd)).length > 0 && <TargetField tokens={tokensIn(items.map(({ c }) => c.cmd))} />}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {items.map(({ b, c }) => (
               <CommandCard key={favKey(b.id, c.cmd)} item={c} branchId={b.id} />

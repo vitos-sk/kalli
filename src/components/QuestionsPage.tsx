@@ -7,7 +7,7 @@ import { TargetField } from '@/components/TargetField'
 import { branches } from '@/branches'
 import { buildIndex, search } from '@/lib/search'
 import { understood } from '@/lib/store'
-import { hasPlaceholder } from '@/lib/target'
+import { hasPlaceholder, tokensIn } from '@/lib/target'
 import { cn } from '@/lib/utils'
 import { findQuestion, topics } from '@/topics'
 import type { Question, Topic } from '@/topics/types'
@@ -121,7 +121,7 @@ export function QuestionsPage({ topicId, qid, go }: { topicId?: string; qid?: st
           ))}
         </div>
 
-        {needsTarget && <TargetField />}
+        {needsTarget && <TargetField tokens={tokensIn(topic.questions.flatMap((x) => x.cmds ?? []))} />}
         <ul className="space-y-2">
           {list.map((x) => (
             <QuestionItem key={x.id} topic={topic} q={x} open={x.id === qid} onToggle={() => go('questions', topic.id, x.id === qid ? undefined : x.id)} go={go} />

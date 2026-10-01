@@ -59,7 +59,9 @@ export function TargetProvider({ children }: { children: ReactNode }) {
   const [port, setPortRaw] = useState(() => load(PORT_KEY))
 
   const setTarget = useCallback((v: string) => {
-    const clean = v.replace(ALLOWED, '').slice(0, 253)
+    // вставили целый адрес из браузера: убираем https:// , логин@ и путь после первого / (CIDR вида 10.0.0.0/24 не трогаем)
+    const bare = /^\d+\.\d+\.\d+\.\d+\/\d+$/.test(v) ? v : v.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '').replace(/^[^/@]*@/, '').replace(/[/?#].*$/, '')
+    const clean = bare.replace(ALLOWED, '').slice(0, 253)
     setTargetRaw(clean)
     save(KEY, clean)
   }, [])

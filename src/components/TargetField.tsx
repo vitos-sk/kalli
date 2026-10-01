@@ -97,7 +97,11 @@ export function TargetField({ tokens = ALL }: { tokens?: Token[] }) {
         . Не знаешь, что вписать? <a href="#/values" className="whitespace-nowrap text-primary underline underline-offset-2">Где взять эти значения →</a> Сканируй только свои цели и учебные мишени.
       </p>
 
-      <button
+      {filled && (
+        <button type="button" onClick={() => setEdit(false)} className="label h-8 cursor-pointer border border-primary/50 px-3 text-[10px] text-primary hover:bg-primary/10">готово</button>
+      )}
+
+      {needHost && <button
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
@@ -106,8 +110,8 @@ export function TargetField({ tokens = ALL }: { tokens?: Token[] }) {
         <ChevronRight className={cn('size-3.5 text-primary transition-transform', open && 'rotate-90')} />
         заметки{target ? ` · ${target}` : ''}
         {note && <span className="size-1.5 bg-primary" aria-label="есть заметка" />}
-      </button>
-      {open && (
+      </button>}
+      {needHost && open && (
         <div className="space-y-2">
           <textarea
             value={note}
