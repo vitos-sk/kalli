@@ -4,7 +4,7 @@ import { branches } from '@/branches'
 import { PageTitle } from '@/components/Situations'
 import { Window } from '@/components/ui/card'
 import { explainLine } from '@/lib/explain'
-import { commandInfo, genericHints, ipFinding, stripAnsi } from '@/lib/generic'
+import { commandInfo, commandMistakes, genericHints, ipFinding, stripAnsi } from '@/lib/generic'
 import { useTarget } from '@/lib/target'
 import { cn } from '@/lib/utils'
 import type { Finding } from '@/branches/types'
@@ -36,7 +36,9 @@ export function Explain({ onSituation }: { onSituation: (id: string) => void }) 
     if (!text.trim()) return []
     const seen = new Set<string>()
     const specific = ready.flatMap((b) => b.analyze?.(text) ?? [])
+    const mistakes = commandMistakes(text)
     const all = [
+      ...mistakes,
       ...commandInfo(text),
       ...specific,
       // универсальный разбор адресов — когда ничего более точного с кнопками «цель» не нашли

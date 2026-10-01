@@ -39,7 +39,7 @@ export function PortScanTool({ runSample, samples }: ToolProps) {
           </p>
           <p className="text-xs text-muted-foreground/70">Это демонстрация: реальное сканирование не выполняется.</p>
         </div>
-        <Button onClick={() => runSample(current?.text, current?.label)} className="shrink-0">
+        <Button onClick={() => runSample(current?.text, current?.label, current?.cmd)} className="shrink-0">
           <Play /> Запустить пример
         </Button>
       </div>

@@ -81,3 +81,40 @@ export function createMapStore(key: string) {
 export const notes = createMapStore('pentest-cheats:notes')
 export const playbookDone = createSetStore('pentest-cheats:playbooks')
 export const understood = createSetStore('pentest-cheats:understood')
+
+// Недавно открытые страницы — для стартового экрана поиска (⌘K)
+export interface RecentEntry {
+  id: string
+  sub?: string
+  sub2?: string
+  label: string
+}
+function createRecentStore(key: string, max: number) {
+  const read = (): RecentEntry[] => {
+    try {
+      return JSON.parse(localStorage.getItem(key) ?? '[]')
+    } catch {
+      return []
+    }
+  }
+  let list = read()
+  const subs = new Set<() => void>()
+  const sameRoute = (a: RecentEntry, b: RecentEntry) => a.id === b.id && a.sub === b.sub && a.sub2 === b.sub2
+  return {
+    use: () =>
+      useSyncExternalStore(
+        (cb) => (subs.add(cb), () => subs.delete(cb)),
+        () => list,
+      ),
+    push(entry: RecentEntry) {
+      list = [entry, ...list.filter((e) => !sameRoute(e, entry))].slice(0, max)
+      try {
+        localStorage.setItem(key, JSON.stringify(list))
+      } catch {
+        /* приватный режим */
+      }
+      subs.forEach((f) => f())
+    },
+  }
+}
+export const recentPages = createRecentStore('pentest-cheats:recent', 6)

@@ -7,6 +7,8 @@ export type TabId = 'tool' | 'guide' | 'commands'
 export interface Sample {
   id: string
   label: string
+  /** Настоящая команда, результат которой это демонстрирует (покажется перед выводом) */
+  cmd?: string
   text: string
   /** Показывать как пример на странице «Разобрать вывод» */
   explain?: boolean
@@ -15,7 +17,7 @@ export interface Sample {
 // Что получает встроенный инструмент от оболочки
 export interface ToolProps {
   /** Напечатать текст (по умолчанию — terminalSample ветки) в терминал построчно */
-  runSample: (text?: string, label?: string) => void
+  runSample: (text?: string, label?: string, cmd?: string) => void
   /** Дополнительные примеры вывода из конфига ветки */
   samples: Sample[]
 }

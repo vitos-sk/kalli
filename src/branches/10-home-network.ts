@@ -61,6 +61,12 @@ const config: BranchConfig = {
 - **utun, awdl, llw, bridge, anpi, gif, stf** — служебные «розетки»: VPN, AirDrop, мосты. Пропусти.
 - **netmask 0xffffff00** — это то же, что /24: сеть до 254 устройств.
 
+## Пути к успеху
+
+- **Путь 1 — всё по порядку.** Узнай IP (\`ifconfig\`) → собери сеть в поле цели → \`nmap -sn <net>\` покажет все устройства → для интересных — \`nmap -F\`.
+- **Путь 2 — ищешь свой проект.** Не можешь вспомнить порт своего сервера? \`lsof -iTCP -sTCP:LISTEN -n -P\` (или \`ss -tlnp\` на Linux) покажет все запущенные у тебя программы и их порты сразу, без перебора.
+- **Путь 3 — команда ничего не нашла.** \`nmap -sn\` не видит устройств? Проверь, что цель собралась в правильную сеть (загляни в поле «цель» — там должно быть что-то вроде \`192.168.1.0/24\`), и что ты подключён именно к своему Wi-Fi, а не к VPN.
+
 ## Как читать «что слушает мой компьютер»
 
 «Слушает» — значит, программа открыла «дверь» и ждёт гостей. Важно, кому она открыта:
@@ -276,9 +282,8 @@ const config: BranchConfig = {
 
   terminalSample: IFCONFIG,
   samples: [
-    { id: 'ifconfig', label: 'ifconfig: найти свой IP', text: IFCONFIG, explain: true },
-    { id: 'route', label: 'Адрес роутера (route)', explain: true, text: `❯ route -n get default
-   route to: default
+    { id: 'ifconfig', label: 'ifconfig: найти свой IP', cmd: 'ifconfig', text: IFCONFIG, explain: true },
+    { id: 'route', label: 'Адрес роутера (route)', cmd: 'route -n get default', explain: true, text: `   route to: default
 destination: default
        mask: default
     gateway: 192.168.1.1
@@ -286,7 +291,7 @@ destination: default
       flags: <UP,GATEWAY,DONE,STATIC,PRCLONING,GLOBAL>
  recvpipe  sendpipe  ssthresh  rtt,msec    rttvar  hopcount      mtu     expire
        0         0         0         0         0         0      1500         0` },
-    { id: 'ping', label: 'Пинг роутера', explain: true, text: `PING 192.168.1.1 (192.168.1.1): 56 data bytes
+    { id: 'ping', label: 'Пинг роутера', cmd: 'ping -c 4 <ip>', explain: true, text: `PING 192.168.1.1 (192.168.1.1): 56 data bytes
 64 bytes from 192.168.1.1: icmp_seq=0 ttl=64 time=2.314 ms
 64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=2.101 ms
 64 bytes from 192.168.1.1: icmp_seq=2 ttl=64 time=2.457 ms
@@ -295,12 +300,12 @@ destination: default
 --- 192.168.1.1 ping statistics ---
 4 packets transmitted, 4 packets received, 0.0% packet loss
 round-trip min/avg/max/stddev = 2.101/2.290/2.457/0.126 ms` },
-    { id: 'lsof', label: 'Что слушает мой компьютер', explain: true, text: `COMMAND     PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+    { id: 'lsof', label: 'Что слушает мой компьютер', cmd: 'sudo lsof -iTCP -sTCP:LISTEN -n -P', explain: true, text: `COMMAND     PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
 node      48211 vs     23u  IPv4 0x1c2a3b4c5d6e7f8      0t0  TCP *:5173 (LISTEN)
 node      48230 vs     19u  IPv4 0x1c2a3b4c5d6e7f9      0t0  TCP 127.0.0.1:3000 (LISTEN)
 postgres    712 vs      7u  IPv4 0x1c2a3b4c5d6e7fa      0t0  TCP 127.0.0.1:5432 (LISTEN)
 redis-ser  1033 vs      6u  IPv4 0x1c2a3b4c5d6e7fb      0t0  TCP *:6379 (LISTEN)` },
-    { id: 'devices', label: 'Кто в моей сети (nmap -sn)', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'devices', label: 'Кто в моей сети (nmap -sn)', cmd: 'nmap -sn <net>', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for 192.168.1.1
 Host is up (0.0021s latency).
 Nmap scan report for 192.168.1.15
@@ -310,7 +315,7 @@ Host is up (0.00013s latency).
 Nmap scan report for 192.168.1.57
 Host is up (0.085s latency).
 Nmap done: 256 IP addresses (4 hosts up) scanned in 2.71s` },
-    { id: 'router', label: 'Проверка роутера', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'router', label: 'Проверка роутера', cmd: 'nmap -F <ip>', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for 192.168.1.1
 Host is up (0.0031s latency).
 Not shown: 96 closed tcp ports

@@ -1,18 +1,25 @@
-import { BookOpen, CircleHelp, CornerDownLeft, FolderOpen, LifeBuoy, ListChecks, Search, SquareTerminal } from 'lucide-react'
+import { BookOpen, CircleHelp, Clock, CornerDownLeft, FolderOpen, LifeBuoy, ListChecks, Search, SquareTerminal } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { branches } from '@/branches'
 import { buildIndex, search, type Hit } from '@/lib/search'
+import { recentPages } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
-const ICON = { branch: FolderOpen, guide: BookOpen, command: SquareTerminal, situation: LifeBuoy, page: FolderOpen, playbook: ListChecks, question: CircleHelp }
-const KIND = { branch: 'ветка', guide: 'гайд', command: 'команда', situation: 'ситуация', page: 'раздел', playbook: 'сценарий', question: 'вопрос' }
+const ICON = { branch: FolderOpen, guide: BookOpen, command: SquareTerminal, situation: LifeBuoy, page: FolderOpen, playbook: ListChecks, question: CircleHelp, recent: Clock }
+const KIND = { branch: 'ветка', guide: 'гайд', command: 'команда', situation: 'ситуация', page: 'раздел', playbook: 'сценарий', question: 'вопрос', recent: 'недавнее' }
 
 // Окно поиска (⌘K / Ctrl+K / «/»): по веткам, гайдам и командам
 export function CommandPalette({ onClose, onPick }: { onClose: () => void; onPick: (h: Hit) => void }) {
   const index = useMemo(() => buildIndex(branches), [])
   const [q, setQ] = useState('')
   const [active, setActive] = useState(0)
+  const recent = recentPages.use()
   const results = useMemo(() => search(index, q), [index, q])
+  // пустой запрос и есть история — показываем «недавние» вместо общего списка разделов
+  const showRecent = !q.trim() && recent.length > 0
+  const shown: Hit[] = showRecent
+    ? recent.map((r): Hit => ({ kind: 'recent', title: r.label.split(' › ').pop()!, sub: r.label, to: { id: r.id, sub: r.sub, sub2: r.sub2 }, hay: '', boost: 0 }))
+    : results
   const list = useRef<HTMLUListElement>(null)
 
   useEffect(() => {
@@ -22,11 +29,11 @@ export function CommandPalette({ onClose, onPick }: { onClose: () => void; onPic
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault()
-      setActive((a) => Math.min(a + 1, results.length - 1))
+      setActive((a) => Math.min(a + 1, shown.length - 1))
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
       setActive((a) => Math.max(a - 1, 0))
-    } else if (e.key === 'Enter' && results[active]) onPick(results[active])
+    } else if (e.key === 'Enter' && shown[active]) onPick(shown[active])
     else if (e.key === 'Escape') onClose()
   }
 
@@ -52,8 +59,8 @@ export function CommandPalette({ onClose, onPick }: { onClose: () => void; onPic
           />
         </div>
         <ul ref={list} className="max-h-[55vh] overflow-y-auto p-1.5">
-          {results.length === 0 && <li className="px-3 py-6 text-center text-sm text-muted-foreground">Ничего не нашлось. Попробуй другое слово.</li>}
-          {results.map((h, i) => {
+          {shown.length === 0 && <li className="px-3 py-6 text-center text-sm text-muted-foreground">Ничего не нашлось. Попробуй другое слово.</li>}
+          {shown.map((h, i) => {
             const Icon = ICON[h.kind]
             return (
               <li key={`${h.kind}-${h.to.id}-${h.title}-${i}`}>

@@ -3,7 +3,7 @@ import { SPECIAL } from '@/lib/special'
 import { topics } from '@/topics'
 
 export interface Hit {
-  kind: 'branch' | 'command' | 'guide' | 'situation' | 'page' | 'playbook' | 'question'
+  kind: 'branch' | 'command' | 'guide' | 'situation' | 'page' | 'playbook' | 'question' | 'recent'
   title: string
   sub: string
   /** Куда перейти: id страницы и второй сегмент (вкладка / ситуация) */

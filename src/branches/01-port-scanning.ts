@@ -88,6 +88,15 @@ const config: BranchConfig = {
 
 Телефоны часто показываются без названия фирмы — у них «приватный» MAC. Это нормально.
 
+## Пути к успеху
+
+Вот самые частые сценарии — какой из них твой, станет ясно после первой же команды:
+
+- **Путь 1 — обычный случай.** \`nmap -F <ip>\` сразу показывает открытые двери. → Узнай версии программ (\`-sV\`) → реши, что закрыть, что обновить.
+- **Путь 2 — «Host seems down».** Цель не ответила на вопрос «ты тут?». → Добавь \`-Pn\` и повтори → если двери появились, иди по пути 1; если снова пусто — переходи к пути 3.
+- **Путь 3 — всё filtered.** Цель за файрволом, с внешней стороны больше ничего не увидеть. → Если это твой сервер, проверь изнутри сети (локальный IP вместо внешнего) или через панель хостинга.
+- **Нестандартный порт.** Ничего интересного в первых 1000 портах? Запусти полную проверку \`-p-\` — может, программа спрятана на необычном номере.
+
 ## Что делать с находками
 
 - **Незнакомое устройство** — смени пароль Wi-Fi, отключи WPS, посмотри список подключённых в панели роутера.
@@ -477,7 +486,7 @@ PORT     STATE    SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 1.82s`,
 
   samples: [
-    { id: 'scanme', label: 'Учебная мишень scanme', text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'scanme', label: 'Учебная мишень scanme', cmd: 'nmap scanme.nmap.org', text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for scanme.nmap.org (45.33.32.156)
 Host is up (0.089s latency).
 Not shown: 996 closed tcp ports
@@ -487,7 +496,7 @@ PORT     STATE    SERVICE
 443/tcp  closed   https
 9929/tcp open     nping-echo
 Nmap done: 1 IP address (1 host up) scanned in 1.82s` },
-    { id: 'web', label: 'Обычный веб-сервер', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'web', label: 'Обычный веб-сервер', cmd: 'nmap -F <ip>', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for shop.example.test (203.0.113.40)
 Host is up (0.031s latency).
 Not shown: 997 closed tcp ports
@@ -496,23 +505,23 @@ PORT    STATE SERVICE
 80/tcp  open  http
 443/tcp open  https
 Nmap done: 1 IP address (1 host up) scanned in 1.44s` },
-    { id: 'only443', label: 'Заперт, виден только 443', text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'only443', label: 'Заперт, виден только 443', cmd: 'nmap -F <ip>', text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for example.test (203.0.113.25)
 Host is up (0.045s latency).
 Not shown: 999 filtered tcp ports (no-response)
 PORT    STATE SERVICE
 443/tcp open  https
 Nmap done: 1 IP address (1 host up) scanned in 4.97s` },
-    { id: 'filtered', label: 'Всё filtered', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'filtered', label: 'Всё filtered', cmd: 'nmap -Pn <ip>', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for 203.0.113.10
 Host is up (0.120s latency).
 All 1000 scanned ports on 203.0.113.10 are in state: filtered
 Nmap done: 1 IP address (1 host up) scanned in 21.40s` },
-    { id: 'down', label: 'Host seems down', text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'down', label: 'Host seems down', cmd: 'nmap -Pn <ip>', text: `Starting Nmap 7.94 ( https://nmap.org )
 Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
 Nmap done: 1 IP address (0 hosts up) scanned in 3.12s` },
 
-    { id: 'vendors', label: 'Кто в сети + производители', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'vendors', label: 'Кто в сети + производители', cmd: 'sudo nmap -sn <net>', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for 192.168.1.1
 Host is up (0.0021s latency).
 MAC Address: 50:C7:BF:12:34:56 (TP-Link Technologies)
@@ -528,11 +537,11 @@ MAC Address: F0:18:98:44:55:66 (Apple)
 Nmap scan report for 192.168.1.23
 Host is up (0.00013s latency).
 Nmap done: 256 IP addresses (5 hosts up) scanned in 2.71s` },
-    { id: 'arp', label: 'Таблица соседей (arp -a)', explain: true, text: `? (192.168.1.1) at 50:c7:bf:12:34:56 on en0 ifscope [ethernet]
+    { id: 'arp', label: 'Таблица соседей (arp -a)', cmd: 'arp -a', explain: true, text: `? (192.168.1.1) at 50:c7:bf:12:34:56 on en0 ifscope [ethernet]
 ? (192.168.1.15) at b8:27:eb:aa:bb:cc on en0 ifscope [ethernet]
 ? (192.168.1.42) at 24:6f:28:11:22:33 on en0 ifscope [ethernet]
 ? (192.168.1.255) at ff:ff:ff:ff:ff:ff on en0 ifscope [ethernet]` },
-    { id: 'web-sweep', label: 'Веб-панели и API в сети', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'web-sweep', label: 'Веб-панели и API в сети', cmd: 'nmap -p 80,443,3000,5000,8000,8080,8443 --open <net>', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for 192.168.1.1
 Host is up (0.0031s latency).
 PORT    STATE SERVICE
@@ -548,11 +557,11 @@ PORT     STATE SERVICE
 3000/tcp open  ppp
 5000/tcp open  upnp
 Nmap done: 256 IP addresses (4 hosts up) scanned in 3.90s` },
-    { id: 'curl-head', label: 'Заголовки найденной службы', explain: true, text: `HTTP/1.1 200 OK
+    { id: 'curl-head', label: 'Заголовки найденной службы', cmd: 'curl -sI http://<ip>:<port>', explain: true, text: `HTTP/1.1 200 OK
 Server: nginx/1.18.0
 Content-Type: text/html
 X-Powered-By: Express` },
-    { id: 'api-probe', label: 'Типовые пути моего API', explain: true, text: `== /health
+    { id: 'api-probe', label: 'Типовые пути моего API', cmd: 'for p in /health /docs /openapi.json /admin; do echo "== $p"; curl -s -o /dev/null -w "%{http_code}\\n" http://<ip>:<port>$p; done', explain: true, text: `== /health
 200
 == /docs
 200
@@ -560,7 +569,7 @@ X-Powered-By: Express` },
 200
 == /admin
 403` },
-    { id: 'gadgets', label: 'Камеры, принтеры, умный дом', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'gadgets', label: 'Камеры, принтеры, умный дом', cmd: 'nmap -p 554,631,9100,1883,8123 --open <net>', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for 192.168.1.30
 Host is up (0.012s latency).
 PORT    STATE SERVICE

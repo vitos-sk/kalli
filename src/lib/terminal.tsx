@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useXTerm, type XTermHandle } from 'react-xterm-shell'
 import type { LineHint } from '@/branches/types'
+import { useTarget } from '@/lib/target'
 import { explainLine } from '@/lib/explain'
 
 const FONT = '"JetBrains Mono Variable", ui-monospace, monospace'
@@ -8,6 +9,9 @@ const FONT = '"JetBrains Mono Variable", ui-monospace, monospace'
 const CLEAR = '\x1bc'
 const LINE_DELAY = 110 // мс между строками — эффект «набора»
 const IDLE_HINT = '\x1b[90m> терминал только показывает готовый пример — ничего не выполняется\x1b[0m\r\n'
+// «юзер@машина» слева от команды — чтобы строка выглядела как настоящий терминал
+const PS = '\x1b[1;32mguest@target\x1b[0m\x1b[1m:\x1b[0m\x1b[1;34m~\x1b[0m\x1b[1m$ \x1b[0m'
+const TYPE_DELAY = 28 // мс между символами при «наборе» команды
 
 // Лёгкая подсветка состояний портов (ANSI). Исходный текст не меняется.
 function highlight(line: string): string {
@@ -24,7 +28,7 @@ interface TerminalCtx {
   open: boolean
   setOpen: (v: boolean) => void
   /** Напечатать текст построчно (раскрывает панель) */
-  play: (text: string, label?: string) => void
+  play: (text: string, label?: string, cmd?: string) => void
   /** Очистить и показать подсказку */
   idle: () => void
   running: boolean
@@ -32,6 +36,7 @@ interface TerminalCtx {
   skip: () => void
   /** Текст последнего запущенного вывода — для кнопки «ещё раз» */
   lastText: string
+  lastCmd: string
   /** Название примера, который сейчас/последним печатался — для шапки терминала */
   label: string
   /** Подсказки текущей ветки и поиск пояснения по строке */
@@ -45,9 +50,12 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(() => window.innerWidth >= 768) // на телефоне свёрнут по умолчанию
   const [running, setRunning] = useState(false)
   const [lastText, setLastText] = useState('')
+  const [lastCmd, setLastCmd] = useState('')
+  const { apply } = useTarget()
   const [label, setLabel] = useState('')
   const timer = useRef<number | undefined>(undefined)
-  const pending = useRef<string[]>([]) // ещё не напечатанные строки
+  const pending = useRef<string[]>([]) // ещё не напечатанные строки вывода
+  const typingRest = useRef('') // непропечатанный хвост самой команды (для «пропустить»)
   const hinted = useRef(false) // подсказка уже на экране — второй раз не печатаем
   const hints = useRef<LineHint[]>([])
 
@@ -83,6 +91,7 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
     stop()
     pending.current = []
     setLastText('')
+    setLastCmd('')
     setLabel('')
     terminal.write(CLEAR)
     terminal.write(IDLE_HINT)
@@ -90,28 +99,60 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
   }, [stop, terminal])
 
   const play = useCallback(
-    (text: string, newLabel?: string) => {
+    (text: string, newLabel?: string, cmd?: string) => {
       stop()
       terminal.write(CLEAR)
       setOpen(true)
       setRunning(true)
       setLastText(text)
+      setLastCmd(cmd ?? '')
       setLabel(newLabel ?? '')
       pending.current = text.split('\n')
-      // печатаем по строке с небольшим разбросом задержки
-      const next = () => {
-        const line = pending.current.shift()
-        if (line === undefined) return setRunning(false)
-        terminal.write(highlight(line) + '\r\n')
-        timer.current = window.setTimeout(next, LINE_DELAY + Math.random() * 90)
+
+      // печатаем вывод по строке с небольшим разбросом задержки
+      const printOutput = () => {
+        const next = () => {
+          const line = pending.current.shift()
+          if (line === undefined) return setRunning(false)
+          terminal.write(highlight(line) + '\r\n')
+          timer.current = window.setTimeout(next, LINE_DELAY + Math.random() * 90)
+        }
+        timer.current = window.setTimeout(next, 150)
       }
-      timer.current = window.setTimeout(next, 250)
+
+      if (cmd) {
+        // сначала «печатаем» саму команду после приглашения — как в настоящем терминале
+        const shown = apply(cmd)
+        terminal.write(PS)
+        typingRest.current = shown
+        let i = 0
+        const typeChar = () => {
+          if (i < shown.length) {
+            typingRest.current = shown.slice(i + 1)
+            terminal.write(shown[i++])
+            timer.current = window.setTimeout(typeChar, TYPE_DELAY + Math.random() * 35)
+          } else {
+            typingRest.current = ''
+            terminal.write('\r\n')
+            printOutput()
+          }
+        }
+        timer.current = window.setTimeout(typeChar, 300)
+      } else {
+        typingRest.current = ''
+        printOutput()
+      }
     },
-    [stop, terminal],
+    [stop, terminal, apply],
   )
 
   const skip = useCallback(() => {
     window.clearTimeout(timer.current)
+    // если ещё печатали саму команду — дописываем остаток и переводим строку
+    if (typingRest.current) {
+      terminal.write(typingRest.current + '\r\n')
+      typingRest.current = ''
+    }
     for (const line of pending.current) terminal.write(highlight(line) + '\r\n')
     pending.current = []
     setRunning(false)
@@ -135,8 +176,8 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ terminal, open, setOpen, play, idle, running, skip, lastText, label, setHints, explain }),
-    [terminal, open, play, idle, running, skip, lastText, label, setHints, explain],
+    () => ({ terminal, open, setOpen, play, idle, running, skip, lastText, lastCmd, label, setHints, explain }),
+    [terminal, open, play, idle, running, skip, lastText, lastCmd, label, setHints, explain],
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

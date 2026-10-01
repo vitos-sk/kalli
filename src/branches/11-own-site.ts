@@ -37,6 +37,12 @@ const config: BranchConfig = {
 - **TLD** — это окончание домена: \`.com\`, \`.de\`, \`.ru\`. У каждого окончания своя «записная книга» (реестр). По ней видно, до какого числа домен оплачен: забудешь продлить — потеряешь и сайт, и почту.
 - Проверяй только сайты и серверы, к которым у тебя есть доступ или разрешение владельца (свои или клиентские, с которыми ты работаешь). Если сайт на облачном хостинге, прочитай его правила про проверку портов.
 
+## Пути к успеху
+
+- **Путь 1 — обычная проверка.** \`dig +short <domain>\` даёт IP → \`curl -sI https://<domain>\` показывает заголовки → смотришь, чего не хватает.
+- **Путь 2 — dig ничего не вернул.** Скорее всего, в команду попал целый адрес с \`https://\` вместо просто домена — убери протокол и слэш в конце, оставь только имя вроде \`example.com\`.
+- **Путь 3 — хочешь знать срок действия всего разом.** \`whois <domain>\` (домен) → команда с \`openssl\` (сертификат) → обе даты сразу видно, продлевать или нет.
+
 ## Как читать вывод
 
 - **dig (DNS).** DNS — «телефонная книга интернета». Тип A — на какой IP ведёт домен, MX — куда приходит почта, NS — кто хранит настройки домена, TXT — служебные записи (в том числе защита почты).
@@ -243,27 +249,27 @@ const config: BranchConfig = {
 
   terminalSample: HEADERS_WEAK,
   samples: [
-    { id: 'headers-weak', label: 'Заголовки: слабые', text: HEADERS_WEAK, explain: true },
-    { id: 'headers-good', label: 'Заголовки: хорошие', explain: true, text: `HTTP/2 200
+    { id: 'headers-weak', label: 'Заголовки: слабые', cmd: 'curl -sI https://<domain>', text: HEADERS_WEAK, explain: true },
+    { id: 'headers-good', label: 'Заголовки: хорошие', cmd: 'curl -sI https://<domain>', explain: true, text: `HTTP/2 200
 server: nginx
 content-type: text/html; charset=utf-8
 strict-transport-security: max-age=63072000; includeSubDomains
 content-security-policy: default-src 'self'
 x-content-type-options: nosniff
 x-frame-options: DENY` },
-    { id: 'redirect', label: 'Редирект с http', text: `HTTP/1.1 301 Moved Permanently
+    { id: 'redirect', label: 'Редирект с http', cmd: 'curl -sI http://<domain>', text: `HTTP/1.1 301 Moved Permanently
 server: nginx
 location: https://example.com/` },
-    { id: 'cert', label: 'Сертификат (скоро истечёт)', explain: true, text: `notBefore=${opensslDate(-70)}
+    { id: 'cert', label: 'Сертификат (скоро истечёт)', cmd: 'echo | openssl s_client -connect <domain>:443 -servername <domain> 2>/dev/null | openssl x509 -noout -dates', explain: true, text: `notBefore=${opensslDate(-70)}
 notAfter=${opensslDate(19)}` },
-    { id: 'whois', label: 'Срок домена (whois)', explain: true, text: `   Domain Name: EXAMPLE.COM
+    { id: 'whois', label: 'Срок домена (whois)', cmd: 'whois <domain>', explain: true, text: `   Domain Name: EXAMPLE.COM
    Registrar: Example Registrar, Inc.
    Registry Expiry Date: ${isoDate(200)}
    Name Server: NS1.EXAMPLE.NET` },
-    { id: 'dns', label: 'DNS: IP и защита почты', explain: true, text: `93.184.216.34
+    { id: 'dns', label: 'DNS: IP и защита почты', cmd: 'dig +short <domain>', explain: true, text: `93.184.216.34
 "v=spf1 include:_spf.google.com ~all"
 "v=DMARC1; p=none; rua=mailto:dmarc@example.com"` },
-    { id: 'ports', label: 'Порты сервера сайта', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
+    { id: 'ports', label: 'Порты сервера сайта', cmd: 'nmap -F <domain>', explain: true, text: `Starting Nmap 7.94 ( https://nmap.org )
 Nmap scan report for example.com (203.0.113.40)
 Host is up (0.031s latency).
 Not shown: 96 filtered tcp ports (no-response)

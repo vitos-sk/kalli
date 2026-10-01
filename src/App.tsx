@@ -19,6 +19,7 @@ import { SidebarNav } from '@/components/Sidebar'
 import { TerminalPanel } from '@/components/TerminalPanel'
 import type { Hit } from '@/lib/search'
 import { SPECIAL } from '@/lib/special'
+import { recentPages } from '@/lib/store'
 import { TargetProvider } from '@/lib/target'
 import { TerminalProvider, useShellTerminal } from '@/lib/terminal'
 import { useHashRoute } from '@/lib/useHashRoute'
@@ -137,6 +138,13 @@ function Shell() {
     }
     return list
   })()
+
+  // запоминаем страницу для «недавних» в поиске — по уже готовому пути (хлебной крошке)
+  useEffect(() => {
+    if (!pageId || crumbs.length === 0) return
+    recentPages.push({ id: route.id, sub: route.sub, sub2: route.sub2, label: crumbs.map((c) => c.label).join(' › ') })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageId, route.sub, route.sub2])
 
   if (!pageId) return null
 

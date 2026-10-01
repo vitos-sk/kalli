@@ -8,6 +8,9 @@ export const stripAnsi = (s: string) => s.replace(ANSI, '')
 // Значки приглашения терминала: ❯ › » > $ % #
 const PROMPT = /^\s*[❯›»>$%#]\s+(\S.*)$/
 
+// Строка приглашения терминала «после команды» (папка + время) — не часть вывода, пропускаем при подсчёте пустого ответа
+const PROMPT_LINE_NOISE = /^\s*(?:[❯›»>$%#]\s*$|[~/][\w./-]*(?:\s+\d+(?:\.\d+)?[smh])?\s*$)/
+
 // Подсказки, которые работают для любого вставленного текста
 export const genericHints: LineHint[] = [
   { pattern: PROMPT, text: (m) => `Это команда, которую ты запустил: ${m[1].replace(/\s{2,}.*$/, '').trim()}. Ниже — её результат.` },
@@ -64,4 +67,75 @@ export function ipFinding(text: string): Finding[] {
     text: `Адреса в тексте: ${ips.map((ip) => `${ip} — ${kind(ip)}`).join('; ')}. Любой можно подставить как цель.`,
     actions: ips.map((ip) => ({ label: `цель: ${ip}`, target: ip })),
   }]
+}
+
+
+// ---------- типичные ошибки в команде, из-за которых ответ пустой ----------
+
+interface MistakeRule {
+  test: (cmd: string) => boolean
+  explain: (cmd: string) => string
+}
+
+function stripUrl(cmd: string): string {
+  return cmd.replace(/https?:\/\/([^\s/]+)\S*/g, '$1')
+}
+
+const MISTAKES: MistakeRule[] = [
+  {
+    // dig/nslookup/host/whois понимают только голый домен, не целый адрес сайта
+    test: (cmd) => /^(dig|nslookup|host|whois)\b/.test(cmd) && /https?:\/\//.test(cmd),
+    explain: (cmd) =>
+      `«${cmd}» не сработает: эта команда ждёт просто домен (например \`github.com\`), а не целый адрес сайта. \`https://\` и слэш в конце лишние. Попробуй: \`${stripUrl(cmd)}\`.`,
+  },
+  {
+    test: (cmd) => /^curl\b/.test(cmd) && !/https?:\/\//.test(cmd) && /\s[\w.-]+\.[a-z]{2,}/i.test(cmd),
+    explain: (cmd) => `«${cmd}» может не сработать: curl иногда нужно явно сказать, http это или https. Попробуй добавить \`https://\` перед адресом.`,
+  },
+  {
+    test: (cmd) => /^ping\b/.test(cmd) && /https?:\/\//.test(cmd),
+    explain: (cmd) => `«${cmd}» не сработает: ping проверяет адрес или домен, а не целую ссылку. Убери \`https://\` и всё, что после \`/\`. Попробуй: \`${stripUrl(cmd)}\`.`,
+  },
+  {
+    test: (cmd) => /^nmap\b/.test(cmd) && /https?:\/\//.test(cmd),
+    explain: (cmd) => `«${cmd}» не сработает: nmap проверяет адрес или домен, а не ссылку на страницу. Убери \`https://\` и путь после \`/\`. Попробуй: \`${stripUrl(cmd)}\`.`,
+  },
+]
+
+const EMPTY_HELP: Record<string, string> = {
+  dig: 'Пустой ответ dig обычно значит одно из трёх: 1) для домена нет такой записи (попробуй без +short — там будет видно, что ответил сервер), 2) в домене опечатка, 3) интернет недоступен или DNS заблокирован сетью/VPN.',
+  nslookup: 'Пустой или с ошибкой ответ nslookup — чаще всего опечатка в домене или DNS-сервер недоступен (слабый Wi-Fi, VPN, блокировка).',
+  host: 'Пустой ответ host — обычно опечатка в домене или нет такой записи DNS.',
+  whois: 'Пустой ответ whois — бывает, если реестр домена не отвечает на такой запрос (особенно у некоторых национальных зон) или домен не зарегистрирован.',
+  ping: 'Если ping вообще ничего не печатает — проверь, что команда набрана верно: \`ping\` без флагов на Mac/Linux сам не остановится, это нормально, жди строки \`bytes from\`.',
+}
+
+// Ищем в вставленном тексте запущенные команды и находим типичные причины «ничего не произошло»
+export function commandMistakes(text: string): Finding[] {
+  const out: Finding[] = []
+  const lines = text.split('\n')
+  const prompts: { line: number; cmd: string }[] = []
+  lines.forEach((l, i) => {
+    const m = l.match(PROMPT)
+    if (m) prompts.push({ line: i, cmd: m[1].replace(/\s{2,}.*$/, '').trim() })
+  })
+
+  prompts.forEach(({ line, cmd }, i) => {
+    // явная ошибка в самой команде — говорим о ней, даже если что-то всё же напечаталось
+    const mistake = MISTAKES.find((r) => r.test(cmd))
+    if (mistake) {
+      out.push({ tone: 'warn', text: mistake.explain(cmd) })
+      return
+    }
+
+    // иначе смотрим, был ли вообще ответ до следующей команды
+    const nextLine = prompts[i + 1]?.line ?? lines.length
+    const body = lines.slice(line + 1, nextLine).filter((l) => l.trim() && !PROMPT_LINE_NOISE.test(l))
+    if (body.length === 0) {
+      const first = cmd.split(/\s+/)[0]
+      const help = EMPTY_HELP[first]
+      if (help) out.push({ tone: 'warn', text: `«${cmd}» ничего не напечатал. ${help}` })
+    }
+  })
+  return out
 }
