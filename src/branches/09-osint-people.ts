@@ -24,6 +24,18 @@ const SHERLOCK_RESULT = `[*] Checking username test_user on:
 
 [*] Search completed with 3 results`
 
+const BLACKBIRD_RESULT = `[*] Running Blackbird v1.4 — 605 sites
+[*] Target username: test_user
+
+[FOUND] GitHub          https://github.com/test_user
+[FOUND] Reddit          https://reddit.com/user/test_user
+[FOUND] X / Twitter     https://x.com/test_user
+[FOUND] Telegram        https://t.me/test_user
+[NOT FOUND] TikTok
+[NOT FOUND] Instagram
+
+[*] 4 accounts found out of 605 checked in 6.2s`
+
 const HARVESTER_RESULT = `*******************************************************************
 *  _   _                                            _               *
 *                 | |_| |__   ___  /\\  /\\__ _ _ ____   _____  ___| |_ ___ _ __ *
@@ -61,7 +73,7 @@ const config: BranchConfig = {
   category: 'osint-tools',
   tool: SampleTool,
   keywords: [
-    'osint', 'holehe', 'sherlock', 'maigret', 'theharvester', 'have i been pwned', 'hibp', 'утечка пароля',
+    'osint', 'holehe', 'sherlock', 'maigret', 'blackbird', 'theharvester', 'have i been pwned', 'hibp', 'утечка пароля',
     'где зарегистрирована почта', 'найти аккаунты по нику', 'цифровой след', 'фишинг на сотрудников',
     'email osint', 'social engineering', 'разведка по людям',
   ],
@@ -84,17 +96,19 @@ const config: BranchConfig = {
 
 Искать информацию о конкретном человеке без его согласия и без одного из трёх условий выше — это не «аудит», а слежка, и за гражданскими это во многих странах прямо наказуемо.
 
-## Четыре инструмента, четыре вопроса
+## Пять инструментов, пять вопросов
 
 1. **theHarvester — какие у организации email и поддомены торчат в открытом доступе?** Собирает со поисковиков, сертификатов и других открытых источников.
 2. **Holehe — на каких сервисах зарегистрирована эта почта?** Проверяет почту по механизму «восстановление пароля» десятков сайтов — если форма говорит «письмо отправлено», аккаунт существует.
 3. **Sherlock / Maigret — какие соцсети привязаны к этому нику?** Проверяет один никнейм на сотнях площадок разом.
-4. **Have I Been Pwned — утекал ли этот email или пароль в известных утечках?** Официальная база собранных публичных утечек, с API для автоматической проверки.
+4. **Blackbird — то же самое, но быстрее и шире.** Проверяет никнейм асинхронно сразу на 600+ сайтах за секунды и умеет искать ещё и по email; хорошая вторая проверка, если Sherlock/Maigret не нашли нужный аккаунт — охват сайтов у инструментов частично не совпадает.
+5. **Have I Been Pwned — утекал ли этот email или пароль в известных утечках?** Официальная база собранных публичных утечек, с API для автоматической проверки.
 
 ## Как читать вывод
 
 - **Holehe:** \`[+]\` — аккаунт на этом сервисе существует, \`[x]\` — нет, \`[-]\` — сервис не ответил однозначно. Само по себе существование аккаунта — не проблема; проблема, когда один и тот же пароль стоит везде.
 - **Sherlock/Maigret:** найденная ссылка — публичный профиль. Проверь, не торчит ли там лишнее: реальное имя, город, место работы, которые не должны быть связаны с этим ником.
+- **Blackbird:** \`[FOUND]\` / \`[NOT FOUND]\` — то же самое, что \`[+]\`/\`[-]\` у Sherlock, просто другой формат вывода. В конце — сводка «N accounts found out of M checked».
 - **theHarvester:** список email — это те самые адреса, на которые пришлют фишинговое письмо в первую очередь (обычно info@, admin@, hr@ — они всегда публичны специально).
 - **HIBP:** пустой список \`breaches: []\` — пока ничего не нашли (не гарантия, что утечек не было вообще — база неполная). Непустой — email был в этих утечках, а если есть \`Passwords\` в \`DataClasses\` — скорее всего, пароль, который там стоял, уже не секрет.
 
@@ -138,6 +152,14 @@ const config: BranchConfig = {
       see: 'HTML-файл с найденными профилями, иконками сайтов и статусом каждого.',
       next: 'Открой отчёт в браузере и пройдись по каждому найденному профилю вручную.',
       keywords: ['maigret', 'html отчёт osint'],
+    },
+    {
+      label: 'Быстрый поиск по нику на 600+ сайтах (Blackbird)',
+      cmd: 'python blackbird.py -u test_user --show-all',
+      note: 'Blackbird — более новый и быстрый инструмент: проверяет никнейм асинхронно сразу на 600+ сайтах за секунды (а не последовательно, как Sherlock) и дополнительно умеет искать по email. Ставится клонированием репозитория: `git clone https://github.com/p1ngul1n0/blackbird && cd blackbird && pip install -r requirements.txt`.',
+      see: '`[FOUND]` — аккаунт существует на сайте, `[NOT FOUND]` — нет. Флаг `--show-all` печатает и не найденные тоже, без него — только найденные.',
+      next: 'Сравни результат со списком от Sherlock/Maigret — охват сайтов у инструментов разный, какой-то аккаунт может найтись только здесь.',
+      keywords: ['blackbird', 'быстрый поиск по нику', 'async osint'],
     },
     {
       label: 'Проверить email на утечки (Have I Been Pwned)',
@@ -223,6 +245,7 @@ const config: BranchConfig = {
   samples: [
     { id: 'holehe', label: 'Holehe: где зарегистрирована почта', cmd: 'holehe test@example.com', text: HOLEHE_RESULT, explain: true },
     { id: 'sherlock', label: 'Sherlock: найденные профили', cmd: 'sherlock test_user', text: SHERLOCK_RESULT, explain: true },
+    { id: 'blackbird', label: 'Blackbird: найденные аккаунты', cmd: 'python blackbird.py -u test_user --show-all', text: BLACKBIRD_RESULT, explain: true },
     { id: 'harvester', label: 'theHarvester: email и поддомены', cmd: 'theHarvester -d example.com -b all', text: HARVESTER_RESULT, explain: true },
     { id: 'hibp-leaked', label: 'HIBP: есть утечки', cmd: 'curl -s "https://haveibeenpwned.com/api/v3/breachedaccount/test@example.com"', text: HIBP_LEAKED, explain: true },
     { id: 'hibp-clean', label: 'HIBP: чисто', cmd: 'curl -s "https://haveibeenpwned.com/api/v3/breachedaccount/test@example.com"', text: HIBP_CLEAN, explain: true },
