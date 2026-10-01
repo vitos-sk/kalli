@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
+import type { CategoryId } from '@/lib/categories'
 
 export type TabId = 'tool' | 'guide' | 'commands'
 
@@ -117,6 +118,8 @@ export interface BranchConfig {
   terminalSample: string
   /** Порядок в сайдбаре (меньше — выше) */
   order: number
+  /** Категория направления — см. src/lib/categories.ts */
+  category: CategoryId
   /** true — заглушка «скоро» */
   soon?: boolean
   /** Живые слова для поиска: «пинг», «файрвол», «хост не отвечает» */

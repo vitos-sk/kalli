@@ -58,6 +58,7 @@ const config: BranchConfig = {
   title: 'OSINT: почта, ники, соцсети',
   icon: UserSearch,
   order: 8,
+  category: 'osint-tools',
   tool: SampleTool,
   keywords: [
     'osint', 'holehe', 'sherlock', 'maigret', 'theharvester', 'have i been pwned', 'hibp', 'утечка пароля',

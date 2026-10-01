@@ -28,6 +28,7 @@ const config: BranchConfig = {
   title: 'Разведка (OSINT)',
   icon: Search,
   order: 7,
+  category: 'recon-net',
   tool: SampleTool,
   keywords: ['osint', 'разведка', 'поддомены', 'subdomain', 'crt.sh', 'wayback', 'archive', 'гугл дорки', 'google dork', 'теневой ит', 'shadow it', 'утечка', 'whois', 'dns', 'что обо мне известно', 'amass', 'subfinder', 'глубокая разведка'],
   lineHints: [...reconHints, ...siteHints],

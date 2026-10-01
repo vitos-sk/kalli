@@ -28,6 +28,7 @@ const config: BranchConfig = {
   title: 'Моя сеть и роутер',
   icon: Router,
   order: 5,
+  category: 'tvoe',
   tool: SampleTool,
   keywords: ['мой ip', 'ifconfig', 'ipconfig', 'роутер', 'wifi', 'вайфай', 'домашняя сеть', 'устройства в сети', 'кто подключён', 'мой компьютер', 'порты компьютера', 'слушает порт', 'lsof', 'dev-сервер', 'localhost'],
   lineHints: [...netHints, ...nmapHints],

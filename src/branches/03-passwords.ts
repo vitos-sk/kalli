@@ -51,6 +51,7 @@ const config: BranchConfig = {
   title: 'Пароли и вход',
   icon: KeyRound,
   order: 30,
+  category: 'access-vuln',
   tool: SampleTool,
   keywords: ['пароль', 'перебор', 'брутфорс', 'brute force', 'ssh', 'fail2ban', 'двухфакторная аутентификация', '2fa', 'слабый пароль', 'вход по ключу', 'authlog', 'менеджер паролей', 'hashcat', 'john the ripper', 'офлайн перебор хэша', 'взлом хэша'],
   lineHints: pwHints,

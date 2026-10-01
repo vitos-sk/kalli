@@ -10,6 +10,7 @@ const config: BranchConfig = {
   title: 'Сканирование портов',
   icon: Radar,
   order: 10,
+  category: 'recon-net',
   tool: PortScanTool,
   keywords: ['nmap', 'порт', 'порты', 'скан', 'сканер', 'файрвол', 'firewall', 'filtered', 'открытые двери', 'службы', 'ssh', 'mysql', 'rdp', 'разведка', 'найти устройства', 'найти api', 'гаджеты', 'камеры', 'принтеры', 'умный дом', 'инвентаризация', 'пентестер', 'enumeration', 'свои устройства', 'свои api', 'mqtt'],
   lineHints: [...nmapHints, ...discoverHints, ...siteHints],

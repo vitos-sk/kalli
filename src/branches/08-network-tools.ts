@@ -42,6 +42,7 @@ const config: BranchConfig = {
   title: 'Трафик и Wi-Fi',
   icon: Activity,
   order: 11,
+  category: 'recon-net',
   tool: SampleTool,
   keywords: [
     'wireshark', 'tcpdump', 'трафик', 'снифер', 'sniffer', 'перехват трафика', 'aircrack-ng', 'airodump',

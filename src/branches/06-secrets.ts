@@ -33,6 +33,7 @@ const config: BranchConfig = {
   title: 'Секреты в коде и репозитории',
   icon: FileKey,
   order: 15,
+  category: 'access-vuln',
   tool: SampleTool,
   keywords: [
     'секреты', 'утечка ключей', 'api key в коде', 'пароль в коде', 'gitleaks', 'trufflehog',

@@ -64,6 +64,7 @@ const config: BranchConfig = {
   title: 'Глубокое веб-тестирование',
   icon: Crosshair,
   order: 21,
+  category: 'web',
   tool: SampleTool,
   keywords: [
     'nikto', 'nuclei', 'ffuf', 'gobuster', 'sqlmap', 'burp', 'burp suite', 'owasp zap', 'zap',

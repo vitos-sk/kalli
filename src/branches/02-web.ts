@@ -31,6 +31,7 @@ const config: BranchConfig = {
   title: 'Веб-уязвимости',
   icon: Globe,
   order: 20,
+  category: 'web',
   tool: SampleTool,
   keywords: ['веб', 'уязвимость', 'xss', 'sql injection', 'листинг каталога', 'админка без пароля', 'security headers', 'owasp', 'свой сайт', 'cookie', 'cors'],
   lineHints: [...webHints, ...siteHints],

@@ -22,6 +22,7 @@ const config: BranchConfig = {
   title: 'Сайт, с которым работаешь',
   icon: Globe,
   order: 6,
+  category: 'tvoe',
   tool: SampleTool,
   keywords: ['домен', 'tld', 'dns', 'dig', 'whois', 'сертификат', 'ssl', 'https', 'заголовки', 'curl', 'сайт', 'почта домена', 'spf', 'dmarc', 'срок домена', 'клиентский сайт', 'проект'],
   lineHints: [...siteHints, ...nmapHints],
