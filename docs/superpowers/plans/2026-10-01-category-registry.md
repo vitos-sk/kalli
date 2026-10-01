@@ -333,7 +333,7 @@ Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 ## Task 5: Группировка веток в сайдбаре
 
 **Files:**
-- Modify: `src/components/Sidebar.tsx:1-6` (импорты), `src/components/Sidebar.tsx:95-116` (блок веток)
+- Modify: `src/components/Sidebar.tsx:1-5` (импорты), `src/components/Sidebar.tsx:95-109` (блок веток)
 - Test: `npm run build`, затем ручная проверка в `npm run dev`
 
 **Interfaces:**
@@ -342,7 +342,7 @@ Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 
 - [ ] **Step 1: Добавить импорт реестра категорий**
 
-В `src/components/Sidebar.tsx` после существующего импорта типа `BranchConfig` (строка 6) добавить:
+В `src/components/Sidebar.tsx` после существующего импорта типа `BranchConfig` (строка 5) добавить:
 
 ```ts
 import { CATEGORIES } from '@/lib/categories'
@@ -350,7 +350,7 @@ import { CATEGORIES } from '@/lib/categories'
 
 - [ ] **Step 2: Заменить плоский блок веток на группировку по категориям**
 
-Заменить текущий блок (строки 95–116):
+Заменить текущий блок (строки 95–109):
 
 ```tsx
         {!collapsed && <GroupLabel>справочник</GroupLabel>}
@@ -366,12 +366,7 @@ import { CATEGORIES } from '@/lib/categories'
               collapsed={collapsed}
               disabled={b.soon}
               onSelect={onSelect}
-              right={
-                <>
-                  {b.soon && <Badge>скоро</Badge>}
-                  {done.includes(b.id) && <Check className="size-4 text-primary" aria-label="изучено" />}
-                </>
-              }
+              right={b.soon && <Badge>скоро</Badge>}
             />
           ))}
         </div>
@@ -400,12 +395,7 @@ import { CATEGORIES } from '@/lib/categories'
                     collapsed={collapsed}
                     disabled={b.soon}
                     onSelect={onSelect}
-                    right={
-                      <>
-                        {b.soon && <Badge>скоро</Badge>}
-                        {done.includes(b.id) && <Check className="size-4 text-primary" aria-label="изучено" />}
-                      </>
-                    }
+                    right={b.soon && <Badge>скоро</Badge>}
                   />
                 ))}
               </div>
@@ -413,6 +403,13 @@ import { CATEGORIES } from '@/lib/categories'
           )
         })}
 ```
+
+(Примечание исполнителю: пока писался этот план, в этом же worktree параллельная сессия убрала
+фичу «отметить как изученное» (коммит `0370179` «Remove 'mark as learned' feature everywhere») —
+чекмарк `done.includes(b.id)`/`Check` в этом блоке уже удалён, снимок кода выше это учитывает.
+Перед началом этого шага всё равно открой текущий `src/components/Sidebar.tsx` и сверь, что блок
+веток (строки 95–109) выглядит так, как указано здесь — воркспейс общий, возможны другие параллельные
+правки.)
 
 - [ ] **Step 3: Проверить сборку**
 
